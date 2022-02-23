@@ -5,6 +5,7 @@ description = ""
 authors = ["Peter Griess <pg@std.in>"]
 
 [tool.poetry.dependencies]
+osxphotos = "^0.46.1"
 python = "^3.7"
 pyxstar = "^0.1.0"
 
