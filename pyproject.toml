@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "pgriess-peopleframe"
+name = "peopleframe"
 version = "0.1.0"
 description = ""
 authors = ["Peter Griess <pg@std.in>"]
@@ -10,6 +10,9 @@ pyxstar = "^0.1.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
+
+[tool.poetry.scripts]
+peopleframe = "peopleframe.main:main"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
