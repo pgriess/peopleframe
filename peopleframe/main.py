@@ -7,6 +7,7 @@ from tempfile import TemporaryDirectory
 
 import osxphotos
 from pyxstar.api import API
+from wand.image import Image
 
 
 # Turn a Pix-Star filename into a UUID
@@ -21,6 +22,21 @@ def uuid_from_name(name):
     name, _ = name.rsplit('_', 1)
 
     return name
+
+
+# Export a Photos photo to a directory
+#
+# TODO: Export to a file-like object and return its MIME type. This will prevent
+#       us from having to hit the filesystem (and clean up).
+def export_photo(p, dp, basename):
+    fp = os.path.join(dp, f'{basename}.jpg')
+    logging.info(f'Exporting {p.path} => {fp}')
+
+    with Image(filename=p.path) as img:
+        img.format = 'jpeg'
+        img.save(filename=fp)
+
+    return fp
 
 
 def main():
@@ -57,8 +73,7 @@ def main():
     pdb = osxphotos.PhotosDB()
     pdb_photos = []
     for p in sorted(pdb.photos(persons=args.people), key=lambda p: p.date):
-        # TODO: Convert other formats, e.g. public.heic
-        if p.uti not in ['public.jpeg', 'public.png']:
+        if p.uti not in ['public.jpeg', 'public.png', 'public.heic']:
             continue
 
         pdb_photos.append(p)
@@ -99,28 +114,14 @@ def main():
 
     with TemporaryDirectory() as dp:
         for pn in set(pdb_photos) - set(px_photos):
-            p = pdb_photos[pn]
-            ext = None
-            mime_type = None
-            if p.uti == 'public.jpeg':
-                ext = 'jpg'
-                mime_type = 'image/jpeg'
-            elif p.uti == 'public.png':
-                ext = 'png'
-                mime_type = 'image/png'
-            else:
-                raise Exception(f'Unexpected URI {p.uti}')
-
-            p.export(dp, f'{pn}.{ext}')
-            assert os.path.isfile(os.path.join(dp, f'{pn}.{ext}'))
-
             logging.info(f'Uploading {pn} to Pix-Star album')
 
             if args.dry_run:
                 continue
 
-            with open(os.path.join(dp, f'{pn}.{ext}'), 'rb') as f:
-                api.album_photo_upload(px_album, f, f'{pn}.{ext}', mime_type)
+            fp = export_photo(pdb_photos[pn], dp, pn)
+            with open(fp, 'rb') as f:
+                api.album_photo_upload(px_album, f, os.path.basename(fp), 'image/jpeg')
 
 
 if __name__ == '__main__':
