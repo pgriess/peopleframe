@@ -56,6 +56,9 @@ def main():
         '-P', dest='people', action='append', default=None,
         help='include photos of the given person; can be used multiple times')
     ap.add_argument(
+        '-s', dest='score', type=float, default=0.5,
+        help='minimum score for photos to include; range 0 to 1.0')
+    ap.add_argument(
         '-u', dest='username', help='Pix-Star username, without @mypixstar.com')
     ap.add_argument(
         '-v', dest='verbosity', action='count', default=0,
@@ -74,6 +77,9 @@ def main():
             continue
 
         if not p.visible:
+            continue
+
+        if p.score.overall < args.score:
             continue
 
         pdb_photos.append(p)
