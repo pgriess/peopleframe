@@ -73,6 +73,9 @@ def main():
         if p.uti not in ['public.jpeg', 'public.png', 'public.heic']:
             continue
 
+        if not p.visible:
+            continue
+
         pdb_photos.append(p)
 
     pdb_photos = pdb_photos[-1 * args.count:]
