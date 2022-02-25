@@ -9,14 +9,6 @@ import osxphotos
 from pyxstar.api import API
 
 
-def get_album(api, name):
-    for a in api.albums():
-        if a.name == name:
-            return a
-
-    return None
-
-
 # Turn a Pix-Star filename into a UUID
 def uuid_from_name(name):
     # Normalize case
@@ -90,8 +82,7 @@ def main():
     api = API(ssl_context=ctx)
     api.login(args.username, args.password)
 
-    # TODO: Need API.album() method to get a specific album
-    px_album = get_album(api, args.album)
+    px_album = api.album(args.album)
     assert px_album
 
     px_photos = api.album_photos(px_album)
