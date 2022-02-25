@@ -1,9 +1,9 @@
 from argparse import ArgumentParser
+from io import BytesIO
 import logging
 import os.path
 from ssl import CERT_NONE, SSLContext
 import sys
-from tempfile import TemporaryDirectory
 
 import osxphotos
 from pyxstar.api import API
@@ -24,19 +24,16 @@ def uuid_from_name(name):
     return name
 
 
-# Export a Photos photo to a directory
-#
-# TODO: Export to a file-like object and return its MIME type. This will prevent
-#       us from having to hit the filesystem (and clean up).
-def export_photo(p, dp, basename):
-    fp = os.path.join(dp, f'{basename}.jpg')
-    logging.info(f'Exporting {p.path} => {fp}')
+# Export a Photos photo
+def export_photo(p, mime_type):
+    assert mime_type == 'image/jpeg'
 
+    wio = BytesIO()
     with Image(filename=p.path) as img:
         img.format = 'jpeg'
-        img.save(filename=fp)
+        img.save(file=wio)
 
-    return fp
+    return BytesIO(bytes(wio.getbuffer()))
 
 
 def main():
@@ -112,16 +109,15 @@ def main():
 
         api.album_photos_delete(px_album, [px_photos[pn]])
 
-    with TemporaryDirectory() as dp:
-        for pn in set(pdb_photos) - set(px_photos):
-            logging.info(f'Uploading {pn} to Pix-Star album')
+    for pn in set(pdb_photos) - set(px_photos):
+        logging.info(f'Uploading {pn} to Pix-Star album')
 
-            if args.dry_run:
-                continue
+        if args.dry_run:
+            continue
 
-            fp = export_photo(pdb_photos[pn], dp, pn)
-            with open(fp, 'rb') as f:
-                api.album_photo_upload(px_album, f, os.path.basename(fp), 'image/jpeg')
+        mime_type = 'image/jpeg'
+        with export_photo(pdb_photos[pn], mime_type) as f:
+            api.album_photo_upload(px_album, f, f'{pn}.jpg', mime_type)
 
 
 if __name__ == '__main__':
