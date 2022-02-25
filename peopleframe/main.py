@@ -103,7 +103,6 @@ def main():
     px_photos = api.album_photos(px_album)
     px_photos = {uuid_from_name(p.name): p for p in px_photos}
 
-    # TODO: Paging rather than deleting one-by-one 
     for pn in set(px_photos) - set(pdb_photos):
         logging.info(f'Deleting {pn} from Pix-Star album')
 
