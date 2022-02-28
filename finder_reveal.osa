@@ -1,0 +1,12 @@
+#!/usr/bin/env osascript
+#
+# An AppleScript that reveals the given path in the Finder.
+
+on run argv
+	tell application "Finder"
+		set ppath to item 1 of argv
+		set pfile to ppath as POSIX file
+		reveal pfile
+		activate
+	end tell
+end run
