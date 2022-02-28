@@ -1,4 +1,7 @@
 from argparse import ArgumentParser
+from collections import namedtuple
+from configparser import ConfigParser
+from dataclasses import dataclass
 from io import BytesIO
 import logging
 import os.path
@@ -8,6 +11,16 @@ import sys
 import osxphotos
 from pyxstar.api import API
 from wand.image import Image
+
+
+@dataclass
+class Album:
+    name = None
+    username = None
+    password = None
+    count = 10
+    people = []
+    score = 0.5
 
 
 # Turn a Pix-Star filename into a UUID
@@ -36,6 +49,62 @@ def export_photo(p, mime_type):
     return BytesIO(bytes(wio.getbuffer()))
 
 
+# Synchronize a single album
+def album_sync(album, pdb, dry_run=True, ssl_context=None):
+    pdb_photos = []
+    for p in sorted(pdb.photos(persons=album.people), key=lambda p: p.date):
+        if p.uti not in ['public.jpeg', 'public.png', 'public.heic']:
+            continue
+
+        if not p.visible:
+            continue
+
+        if p.score.overall < album.score:
+            continue
+
+        pdb_photos.append(p)
+
+    pdb_photos = pdb_photos[-1 * album.count:]
+    pdb_photos = {p.uuid.lower(): p for p in pdb_photos}
+
+    username = album.username
+    if not username:
+        sys.stderr.write(f'Username for {album.name}: ')
+        username = input().strip()
+
+    password = album.password
+    if not password:
+        sys.stderr.write(f'Password for {album.name}: ')
+        password = input().strip()
+
+    api = API(ssl_context=ssl_context)
+    api.login(username, password)
+
+    px_album = api.album(album.name)
+    assert px_album
+
+    px_photos = api.album_photos(px_album)
+    px_photos = {uuid_from_name(p.name): p for p in px_photos}
+
+    for pn in set(px_photos) - set(pdb_photos):
+        logging.info(f'Deleting {pn} from Pix-Star album')
+
+        if dry_run:
+            continue
+
+        api.album_photos_delete(px_album, [px_photos[pn]])
+
+    for pn in set(pdb_photos) - set(px_photos):
+        logging.info(f'Uploading {pn} to Pix-Star album')
+
+        if dry_run:
+            continue
+
+        mime_type = 'image/jpeg'
+        with export_photo(pdb_photos[pn], mime_type) as f:
+            api.album_photo_upload(px_album, f, f'{pn}.jpg', mime_type)
+
+
 def main():
     ap = ArgumentParser()
     ap.add_argument(
@@ -44,6 +113,9 @@ def main():
     ap.add_argument(
         '-c', dest='count', type=int, default=10,
         help='the photo album should be populated with this number of photos')
+    ap.add_argument(
+        '-f', dest='config_file',
+        help='load values from the given config file')
     ap.add_argument(
         '-k', dest='validate_https', action='store_false', default=True,
         help='disable HTTPS certificate checking')
@@ -70,62 +142,49 @@ def main():
         style='{', format='{message}', stream=sys.stderr,
         level=logging.ERROR - args.verbosity * 10)
 
-    pdb = osxphotos.PhotosDB()
-    pdb_photos = []
-    for p in sorted(pdb.photos(persons=args.people), key=lambda p: p.date):
-        if p.uti not in ['public.jpeg', 'public.png', 'public.heic']:
-            continue
-
-        if not p.visible:
-            continue
-
-        if p.score.overall < args.score:
-            continue
-
-        pdb_photos.append(p)
-
-    pdb_photos = pdb_photos[-1 * args.count:]
-    pdb_photos = {p.uuid.lower(): p for p in pdb_photos}
-
-    ctx = None
+    ssl_ctx = None
     if not args.validate_https:
-        ctx = SSLContext()
-        ctx.verify_mode = CERT_NONE
+        ssl_ctx = SSLContext()
+        ssl_ctx.verify_mode = CERT_NONE
 
-    if not args.username:
-        sys.stderr.write('Username: ')
-        args.username = input().strip()
+    # Create the set of albums to sync
+    #
+    # At some point it would be nice to allow CLI arguments to override
+    # individual values from the config file, but right now just get the thing
+    # working.
+    albums = []
+    if args.config_file:
+        config = ConfigParser()
+        config.read(args.config_file)
 
-    if not args.password:
-        sys.stderr.write('Password: ')
-        args.password = input().strip()
+        for sn in config.sections():
+            a = Album()
+            a.name = sn
+            for k, v in config[sn].items():
+                if k in ['people']:
+                    v = [vv.strip() for vv in v.split(',')]
+                elif k in ['score']:
+                    v = float(v)
+                elif k in ['count']:
+                    v = int(v)
 
-    api = API(ssl_context=ctx)
-    api.login(args.username, args.password)
+                setattr(a, k.lower(), v)
 
-    px_album = api.album(args.album)
-    assert px_album
+            albums.append(a)
+    else:
+        a = Album()
+        a.name = args.album
+        a.count = args.count
+        a.password = args.password
+        a.people = args.people
+        a.score = args.score
 
-    px_photos = api.album_photos(px_album)
-    px_photos = {uuid_from_name(p.name): p for p in px_photos}
+        albums.append(a)
 
-    for pn in set(px_photos) - set(pdb_photos):
-        logging.info(f'Deleting {pn} from Pix-Star album')
+    pdb = osxphotos.PhotosDB()
 
-        if args.dry_run:
-            continue
-
-        api.album_photos_delete(px_album, [px_photos[pn]])
-
-    for pn in set(pdb_photos) - set(px_photos):
-        logging.info(f'Uploading {pn} to Pix-Star album')
-
-        if args.dry_run:
-            continue
-
-        mime_type = 'image/jpeg'
-        with export_photo(pdb_photos[pn], mime_type) as f:
-            api.album_photo_upload(px_album, f, f'{pn}.jpg', mime_type)
+    for a in albums:
+        album_sync(a, pdb, dry_run=args.dry_run, ssl_context=ssl_ctx)
 
 
 if __name__ == '__main__':
