@@ -51,6 +51,8 @@ def export_photo(p, mime_type):
 
 # Synchronize a single album
 def album_sync(album, pdb, dry_run=True, ssl_context=None):
+    logging.info(f'Synchronizing album {album.name}')
+
     pdb_photos = []
     for p in sorted(pdb.photos(persons=album.people), key=lambda p: p.date):
         if p.uti not in ['public.jpeg', 'public.png', 'public.heic']:
@@ -184,10 +186,13 @@ def main():
 
         albums.append(a)
 
+    logging.info('Connecting to Photos database')
     pdb = osxphotos.PhotosDB()
 
     for a in albums:
         album_sync(a, pdb, dry_run=args.dry_run, ssl_context=ssl_ctx)
+
+    logging.info('Done')
 
 
 if __name__ == '__main__':
