@@ -4,19 +4,26 @@
 <dict>
     <key>Label</key>
     <string>in.std.peopleframe.XXXXX</string>
+
     <key>ProgramArguments</key>
     <array>
         <string>/path/to/peopleframe</string>
         <string>-vvv</string>
-        <string>-n</string>
     </array>
+
     <key>StandardErrorPath</key>
     <string>/path/to/logs/in.std.peopleframe.XXXXX.err</string>
     <key>StandardOutPath</key>
     <string>/path/to/logs/in.std.peopleframe.XXXXX.out</string>
+
+    <!-- Change the contents of this file to force a run, e.g. `date >/path/to/file` -->
     <key>WatchPaths</key>
     <array>
         <string>/path/to/library/in.std.peopleframe/XXXXX.watch</string>
     </array>
+
+    <!-- Frequency that the agent runs, in seconds -->
+    <key>StartInterval</key>
+    <integer>3600</integer>
 </dict>
 </plist>
