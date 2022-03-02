@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>in.std.peopleframe.XXXXX</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/path/to/peopleframe</string>
+        <string>-vvv</string>
+        <string>-n</string>
+    </array>
+    <key>StandardErrorPath</key>
+    <string>/path/to/logs/in.std.peopleframe.XXXXX.err</string>
+    <key>StandardOutPath</key>
+    <string>/path/to/logs/in.std.peopleframe.XXXXX.out</string>
+    <key>WatchPaths</key>
+    <array>
+        <string>/path/to/library/in.std.peopleframe/XXXXX.watch</string>
+    </array>
+</dict>
+</plist>
