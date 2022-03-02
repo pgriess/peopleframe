@@ -59,6 +59,9 @@ def album_sync(album, pdb, dry_run=True, ssl_context=None):
         if not p.visible:
             continue
 
+        if p.screenshot:
+            continue
+
         if p.score.overall < album.score:
             continue
 
