@@ -113,33 +113,43 @@ def album_sync(album, pdb, dry_run=True, ssl_context=None):
 def main():
     ap = ArgumentParser()
     ap.add_argument(
-        '-a', dest='album', default='Photoframe',
-        help='name of the Pix-Star album to modify')
-    ap.add_argument(
-        '-c', dest='count', type=int, default=10,
-        help='the photo album should be populated with this number of photos')
-    ap.add_argument(
         '-f', dest='config_file',
+        default=os.path.expanduser('~/.peopleframe.ini'),
         help='load values from the given config file')
-    ap.add_argument(
-        '-k', dest='validate_https', action='store_false', default=True,
-        help='disable HTTPS certificate checking')
-    ap.add_argument(
-        '-n', dest='dry_run', action='store_true', default=False,
-        help='dry-run; do not make changes to Pix-Star album')
-    # TODO: Get from Keychain
-    ap.add_argument('-p', dest='password', help='Pix-Star password')
-    ap.add_argument(
-        '-P', dest='people', action='append', default=None,
-        help='include photos of the given person; can be used multiple times')
-    ap.add_argument(
-        '-s', dest='score', type=float, default=0.5,
-        help='minimum score for photos to include; range 0 to 1.0')
-    ap.add_argument(
-        '-u', dest='username', help='Pix-Star username, without @mypixstar.com')
     ap.add_argument(
         '-v', dest='verbosity', action='count', default=0,
         help='increase logging verbosity; can be used multiple times')
+
+    ag = ap.add_argument_group('Pix-Star options', description='''
+configure how to connect to the Pix-Star service
+''')
+    ag.add_argument(
+        '-k', dest='validate_https', action='store_false', default=True,
+        help='disable HTTPS certificate checking')
+    ag.add_argument(
+        '-n', dest='dry_run', action='store_true', default=False,
+        help='dry-run; do not make changes to Pix-Star album')
+    ag.add_argument(
+        '-u', dest='username', help='Pix-Star username, without @mypixstar.com')
+    ag.add_argument('-p', dest='password', help='Pix-Star password')
+
+    ag = ap.add_argument_group('album options', description='''
+configure how specific albums are synchronized; override options specified
+in the configuration file
+''')
+    ag.add_argument(
+        '-a', dest='album',
+        help=('name of the album to modify; required to use other options in '
+              'this group unless the config file specifies an album'))
+    ag.add_argument(
+        '-c', dest='count', type=int,
+        help='the photo album should be populated with this number of photos')
+    ag.add_argument(
+        '-P', dest='people', action='append',
+        help='include photos of the given person; can be used multiple times')
+    ag.add_argument(
+        '-s', dest='score', type=float,
+        help='minimum score for photos to include; range 0 to 1.0')
 
     args = ap.parse_args()
 
@@ -153,12 +163,10 @@ def main():
         ssl_ctx.verify_mode = CERT_NONE
 
     # Create the set of albums to sync
-    #
-    # At some point it would be nice to allow CLI arguments to override
-    # individual values from the config file, but right now just get the thing
-    # working.
     albums = []
-    if args.config_file:
+
+    # Populate initial albums from the config file (if it exists)
+    if os.path.isfile(args.config_file):
         config = ConfigParser()
         config.read(args.config_file)
 
@@ -176,15 +184,30 @@ def main():
                 setattr(a, k.lower(), v)
 
             albums.append(a)
-    else:
-        a = Album()
-        a.name = args.album
-        a.count = args.count
-        a.password = args.password
-        a.people = args.people
-        a.score = args.score
 
-        albums.append(a)
+    # If the user specified an album, filter the existing set or create a new
+    # one from scratch to match
+    if args.album:
+        if args.album not in {a.name for a in albums}:
+            a = Album()
+            a.name = args.album
+            albums = [a]
+        else:
+            albums = [a for a in albums if args.name is None or a.name == args.name]
+
+    # Apply per-album options to our set of albums to sync
+    for a in albums:
+        if args.count is not None:
+            a.count = args.count
+
+        if args.password is not None:
+            a.password = args.password
+
+        if args.people is not None:
+            a.people = args.people
+
+        if args.score is not None:
+            a.score = args.score
 
     logging.info('Connecting to Photos database')
     pdb = osxphotos.PhotosDB()
