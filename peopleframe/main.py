@@ -193,7 +193,7 @@ in the configuration file
             a.name = args.album
             albums = [a]
         else:
-            albums = [a for a in albums if args.name is None or a.name == args.name]
+            albums = [a for a in albums if a.name == args.album]
 
     # Apply per-album options to our set of albums to sync
     for a in albums:
