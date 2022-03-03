@@ -15,6 +15,8 @@ from wand.image import Image
 
 @dataclass
 class Album:
+    '''An album to synchronize.'''
+
     name = None
     username = None
     password = None
@@ -23,8 +25,9 @@ class Album:
     score = 0.5
 
 
-# Turn a Pix-Star filename into a UUID
 def uuid_from_name(name):
+    '''Convert a Pix-Star filename into a UUID.'''
+
     # Normalize case
     name = name.lower()
 
@@ -37,8 +40,9 @@ def uuid_from_name(name):
     return name
 
 
-# Export a Photos photo
 def export_photo(p, mime_type):
+    '''Export a Photos photo as a file-like object.'''
+
     assert mime_type == 'image/jpeg'
 
     wio = BytesIO()
@@ -49,8 +53,14 @@ def export_photo(p, mime_type):
     return BytesIO(bytes(wio.getbuffer()))
 
 
-# Synchronize a single album
+# TODO:
+#   - Move photo selection out of this so that it's just synchronization
+#   - Provide pre-authenticated API class rather than doing auth here
 def album_sync(album, pdb, dry_run=True, ssl_context=None):
+    '''
+    Synchronize an Album with the Pix-Star service.
+    '''
+
     logging.info(f'Synchronizing album {album.name}')
 
     pdb_photos = []
