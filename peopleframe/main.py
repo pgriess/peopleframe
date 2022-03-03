@@ -9,7 +9,6 @@ from random import sample
 from ssl import CERT_NONE, SSLContext
 import sys
 
-import osxphotos
 from pyxstar.api import API
 from wand.image import Image
 
@@ -184,7 +183,8 @@ in the configuration file
     args = ap.parse_args()
 
     logging.basicConfig(
-        style='{', format='{message}', stream=sys.stderr,
+        style='{', stream=sys.stderr,
+        format='{asctime} {levelname} {filename}:{lineno} - {message}',
         level=logging.ERROR - args.verbosity * 10)
 
     ssl_ctx = None
@@ -248,6 +248,10 @@ in the configuration file
             a.selection_criteria = SelectionCriteria.__members__[args.selection_criteria]
 
     logging.info('Connecting to Photos database')
+
+    # XXX: Move this import out of the normal area so that it runs after
+    #      configuring logging. Without this, it will stomp on our
+    import osxphotos
     pdb = osxphotos.PhotosDB()
 
     # Pre-authenticated API objects so that we don't prompt users multiple times
