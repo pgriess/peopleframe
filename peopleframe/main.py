@@ -200,6 +200,9 @@ in the configuration file
         if args.count is not None:
             a.count = args.count
 
+        if args.username is not None:
+            a.username = args.username
+
         if args.password is not None:
             a.password = args.password
 
