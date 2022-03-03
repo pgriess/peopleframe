@@ -693,7 +693,7 @@ python-versions = "*"
 
 [[package]]
 name = "pyxstar"
-version = "0.1.1"
+version = "0.2.1"
 description = "A library and commandline tool for managing Pix-Star digital photo frames"
 category = "main"
 optional = false
@@ -821,7 +821,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.11"
-content-hash = "09dd1ed91e67f9d96de2f77fca04d4c32250ed9287a5d661774e52671fd80e17"
+content-hash = "913d9d4fc3984c1c58aa0911755be3343729b3b86f569b43d33c999211e5f613"
 
 [metadata.files]
 altgraph = [
@@ -1246,8 +1246,8 @@ pywin32-ctypes = [
     {file = "pywin32_ctypes-0.2.0-py2.py3-none-any.whl", hash = "sha256:9dc2d991b3479cc2df15930958b674a48a227d5361d413827a4cfd0b5876fc98"},
 ]
 pyxstar = [
-    {file = "pyxstar-0.1.1-py3-none-any.whl", hash = "sha256:125f36259a0b30318f9368d90705b7972dc9ecd23be05eda1ef6efaf34161aac"},
-    {file = "pyxstar-0.1.1.tar.gz", hash = "sha256:ec5502cbc7d5ad620df53f6a4f13cae076a2ff09ab6348668d05c9d13bdfd240"},
+    {file = "pyxstar-0.2.1-py3-none-any.whl", hash = "sha256:71c5ccc803e5897055cc6330b7a5010fd78f7771d4b22bf4ffc30257dd7ddefe"},
+    {file = "pyxstar-0.2.1.tar.gz", hash = "sha256:448b50fbb1b8b66b89b8af9974041caf9709b7d6ea09fee34413abfbce9ae3bb"},
 ]
 pyyaml = [
     {file = "PyYAML-5.4.1-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:3b2b1824fe7112845700f815ff6a489360226a5609b96ec2190a45e62a9fc922"},
