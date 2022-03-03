@@ -110,8 +110,11 @@ def album_sync(album, pdb_photos, px, dry_run=True):
 
     logging.info(f'Synchronizing {album}')
 
-    px_album = px.album(album.name)
-    assert px_album
+    try:
+        px_album = px.album(album.name)
+    except KeyError:
+        logging.warning(f'Creating missing album {album.name}')
+        px_album = px.album_create(album.name)
 
     px_photos = px.album_photos(px_album)
     px_photos = {uuid_from_name(p.name): p for p in px_photos}
