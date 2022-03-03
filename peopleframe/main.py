@@ -1,16 +1,22 @@
 from argparse import ArgumentParser
-from collections import namedtuple
 from configparser import ConfigParser
 from dataclasses import dataclass
+import enum
 from io import BytesIO
 import logging
 import os.path
+from random import sample
 from ssl import CERT_NONE, SSLContext
 import sys
 
 import osxphotos
 from pyxstar.api import API
 from wand.image import Image
+
+
+class SelectionCriteria(enum.Enum):
+    RANDOM = enum.auto()
+    RECENT = enum.auto()
 
 
 @dataclass
@@ -23,6 +29,14 @@ class Album:
     count = 10
     people = []
     score = 0.5
+    selection_criteria = SelectionCriteria.RECENT
+
+    def __str__(self):
+        return (
+            f'Album(name={self.name}, username="{self.username}", '
+            f'count={self.count}, people={", ".join(self.people)}, '
+            f'score={self.score}, '
+            f'selection_criteria={self.selection_criteria})')
 
 
 def uuid_from_name(name):
@@ -58,8 +72,9 @@ def album_pdb_photos(album, pdb):
     Select Photos photos for synchronization with the given album.
     '''
 
+    # Grab all photos that match filter criteria
     pdb_photos = []
-    for p in sorted(pdb.photos(persons=album.people), key=lambda p: p.date):
+    for p in pdb.photos(persons=album.people):
         if p.uti not in ['public.jpeg', 'public.png', 'public.heic']:
             continue
 
@@ -74,8 +89,19 @@ def album_pdb_photos(album, pdb):
 
         pdb_photos.append(p)
 
-    return {
-        p.uuid.lower(): p for p in pdb_photos[-1 * album.count:]}
+    # Apply selection criteria
+    if album.selection_criteria is SelectionCriteria.RECENT:
+        pdb_photos = sorted(pdb_photos, key=lambda p: p.date, reverse=True)
+    elif album.selection_criteria is SelectionCriteria.RANDOM:
+        pdb_photos = sample(pdb_photos, len(pdb_photos))
+    else:
+        raise Exception(f'unexpected selection criteria {album.selection_criteria}')
+
+    # Take only the number of photos requested
+    pdb_photos = pdb_photos[:album.count]
+
+    # Return a map of UUIDs to photos
+    return {p.uuid.lower(): p for p in pdb_photos}
 
 
 def album_sync(album, pdb_photos, px, dry_run=True):
@@ -83,7 +109,7 @@ def album_sync(album, pdb_photos, px, dry_run=True):
     Synchronize an Album with the Pix-Star service.
     '''
 
-    logging.info(f'Synchronizing album {album.name}')
+    logging.info(f'Synchronizing {album}')
 
     px_album = px.album(album.name)
     assert px_album
@@ -150,6 +176,10 @@ in the configuration file
     ag.add_argument(
         '-s', dest='score', type=float,
         help='minimum score for photos to include; range 0 to 1.0')
+    ag.add_argument(
+        '-S', dest='selection_criteria',
+        choices=[sc.name for sc in list(SelectionCriteria)],
+        help='how to select images from the Photos library')
 
     args = ap.parse_args()
 
@@ -180,6 +210,8 @@ in the configuration file
                     v = float(v)
                 elif k in ['count']:
                     v = int(v)
+                elif k in ['selection_criteria']:
+                    v = SelectionCriteria.__members__[v]
 
                 setattr(a, k.lower(), v)
 
@@ -211,6 +243,9 @@ in the configuration file
 
         if args.score is not None:
             a.score = args.score
+
+        if args.selection_criteria is not None:
+            a.selection_criteria = SelectionCriteria.__members__[args.selection_criteria]
 
     logging.info('Connecting to Photos database')
     pdb = osxphotos.PhotosDB()
