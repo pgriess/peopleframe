@@ -55,8 +55,7 @@ def export_photo(p, mime_type):
 
 # TODO:
 #   - Move photo selection out of this so that it's just synchronization
-#   - Provide pre-authenticated API class rather than doing auth here
-def album_sync(album, pdb, dry_run=True, ssl_context=None):
+def album_sync(album, pdb, api, dry_run=True):
     '''
     Synchronize an Album with the Pix-Star service.
     '''
@@ -81,19 +80,6 @@ def album_sync(album, pdb, dry_run=True, ssl_context=None):
 
     pdb_photos = pdb_photos[-1 * album.count:]
     pdb_photos = {p.uuid.lower(): p for p in pdb_photos}
-
-    username = album.username
-    if not username:
-        sys.stderr.write(f'Username for {album.name}: ')
-        username = input().strip()
-
-    password = album.password
-    if not password:
-        sys.stderr.write(f'Password for {album.name}: ')
-        password = input().strip()
-
-    api = API(ssl_context=ssl_context)
-    api.login(username, password)
 
     px_album = api.album(album.name)
     assert px_album
@@ -222,8 +208,30 @@ in the configuration file
     logging.info('Connecting to Photos database')
     pdb = osxphotos.PhotosDB()
 
+    # Pre-authenticated API objects so that we don't prompt users multiple times
+    # for the same set of credentials
+    apis = {}
+
     for a in albums:
-        album_sync(a, pdb, dry_run=args.dry_run, ssl_context=ssl_ctx)
+        api = apis.get(a.username)
+
+        # No API found; create one and authenticate with it
+        if not api:
+            username = a.username
+            if not username:
+                sys.stderr.write(f'Username for {a.name}: ')
+                username = input().strip()
+
+            password = a.password
+            if not password:
+                sys.stderr.write(f'Password for {a.name}: ')
+                password = input().strip()
+
+            api = API(ssl_context=ssl_ctx)
+            api.login(username, password)
+            apis[a.username] = api
+
+        album_sync(a, pdb, api, dry_run=args.dry_run)
 
     logging.info('Done')
 
