@@ -53,14 +53,10 @@ def export_photo(p, mime_type):
     return BytesIO(bytes(wio.getbuffer()))
 
 
-# TODO:
-#   - Move photo selection out of this so that it's just synchronization
-def album_sync(album, pdb, api, dry_run=True):
+def album_pdb_photos(album, pdb):
     '''
-    Synchronize an Album with the Pix-Star service.
+    Select Photos photos for synchronization with the given album.
     '''
-
-    logging.info(f'Synchronizing album {album.name}')
 
     pdb_photos = []
     for p in sorted(pdb.photos(persons=album.people), key=lambda p: p.date):
@@ -78,32 +74,40 @@ def album_sync(album, pdb, api, dry_run=True):
 
         pdb_photos.append(p)
 
-    pdb_photos = pdb_photos[-1 * album.count:]
-    pdb_photos = {p.uuid.lower(): p for p in pdb_photos}
+    return {
+        p.uuid.lower(): p for p in pdb_photos[-1 * album.count:]}
 
-    px_album = api.album(album.name)
+
+def album_sync(album, pdb_photos, px, dry_run=True):
+    '''
+    Synchronize an Album with the Pix-Star service.
+    '''
+
+    logging.info(f'Synchronizing album {album.name}')
+
+    px_album = px.album(album.name)
     assert px_album
 
-    px_photos = api.album_photos(px_album)
+    px_photos = px.album_photos(px_album)
     px_photos = {uuid_from_name(p.name): p for p in px_photos}
 
     for pn in set(px_photos) - set(pdb_photos):
-        logging.info(f'Deleting {pn} from Pix-Star album')
+        logging.debug(f'Deleting {pn} from Pix-Star album')
 
         if dry_run:
             continue
 
-        api.album_photos_delete(px_album, [px_photos[pn]])
+        px.album_photos_delete(px_album, [px_photos[pn]])
 
     for pn in set(pdb_photos) - set(px_photos):
-        logging.info(f'Uploading {pn} to Pix-Star album')
+        logging.debug(f'Uploading {pn} to Pix-Star album')
 
         if dry_run:
             continue
 
         mime_type = 'image/jpeg'
         with export_photo(pdb_photos[pn], mime_type) as f:
-            api.album_photo_upload(px_album, f, f'{pn}.jpg', mime_type)
+            px.album_photo_upload(px_album, f, f'{pn}.jpg', mime_type)
 
 
 def main():
@@ -210,13 +214,12 @@ in the configuration file
 
     # Pre-authenticated API objects so that we don't prompt users multiple times
     # for the same set of credentials
-    apis = {}
+    px_apis = {}
 
     for a in albums:
-        api = apis.get(a.username)
-
-        # No API found; create one and authenticate with it
-        if not api:
+        # Get the Pix-Star API object to use, creating one if necessary
+        px = px_apis.get(a.username)
+        if not px:
             username = a.username
             if not username:
                 sys.stderr.write(f'Username for {a.name}: ')
@@ -227,11 +230,14 @@ in the configuration file
                 sys.stderr.write(f'Password for {a.name}: ')
                 password = input().strip()
 
-            api = API(ssl_context=ssl_ctx)
-            api.login(username, password)
-            apis[a.username] = api
+            px = API(ssl_context=ssl_ctx)
+            px.login(username, password)
+            px_apis[a.username] = px
 
-        album_sync(a, pdb, api, dry_run=args.dry_run)
+        # Select which photos should be in the album
+        pdb_photos = album_pdb_photos(a, pdb)
+
+        album_sync(a, pdb_photos, px, dry_run=args.dry_run)
 
     logging.info('Done')
 
