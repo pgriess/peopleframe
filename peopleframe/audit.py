@@ -41,7 +41,6 @@
 
 from argparse import ArgumentParser
 import logging
-import subprocess
 import sys
 
 import osxphotos
@@ -54,6 +53,7 @@ def faces():
 
     args = ap.parse_args()
 
+    # TODO: Fix logging issues due to import of osxphotos
     logging.basicConfig(
         style='{', format='{message}', stream=sys.stderr,
         level=logging.ERROR - args.verbosity * 10)

@@ -7,12 +7,13 @@ authors = ["Peter Griess <pg@std.in>"]
 [tool.poetry.dependencies]
 osxphotos = "^0.46.1"
 python = ">=3.7,<3.11"
-pyxstar = "^0.2.0"
+pyxstar = "^0.2.2"
 wand = "^0.6.7"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
 pyinstaller = "^4.9"
+mypy = "^0.931"
 
 [tool.poetry.scripts]
 peopleframe = "peopleframe.main:main"

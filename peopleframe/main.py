@@ -8,7 +8,9 @@ import os.path
 from random import sample
 from ssl import CERT_NONE, SSLContext
 import sys
+from typing import IO, List, Mapping, Optional
 
+import osxphotos
 from pyxstar.api import API
 from wand.image import Image
 
@@ -22,15 +24,15 @@ class SelectionCriteria(enum.Enum):
 class Album:
     '''An album to synchronize.'''
 
-    name = None
-    username = None
-    password = None
-    count = 10
-    people = []
-    score = 0.5
+    name: Optional[str] = None
+    username: Optional[str] = None
+    password: Optional[str] = None
+    count: int = 10
+    people: List[str] = []
+    score: float = 0.5
     selection_criteria = SelectionCriteria.RECENT
 
-    def __str__(self):
+    def __str__(self) -> str:
         return (
             f'Album(name={self.name}, username="{self.username}", '
             f'count={self.count}, people={", ".join(self.people)}, '
@@ -38,7 +40,7 @@ class Album:
             f'selection_criteria={self.selection_criteria})')
 
 
-def uuid_from_name(name):
+def uuid_from_name(name: str) -> str:
     '''Convert a Pix-Star filename into a UUID.'''
 
     # Normalize case
@@ -53,7 +55,7 @@ def uuid_from_name(name):
     return name
 
 
-def export_photo(p, mime_type):
+def export_photo(p: osxphotos.PhotoInfo, mime_type: str) -> IO:
     '''Export a Photos photo as a file-like object.'''
 
     assert mime_type == 'image/jpeg'
@@ -66,7 +68,7 @@ def export_photo(p, mime_type):
     return BytesIO(bytes(wio.getbuffer()))
 
 
-def album_pdb_photos(album, pdb):
+def album_pdb_photos(album: Album, pdb: osxphotos.PhotosDB) -> Mapping[str, osxphotos.PhotoInfo]:
     '''
     Select Photos photos for synchronization with the given album.
     '''
@@ -103,7 +105,7 @@ def album_pdb_photos(album, pdb):
     return {p.uuid.lower(): p for p in pdb_photos}
 
 
-def album_sync(album, pdb_photos, px, dry_run=True):
+def album_sync(album: Album, pdb_photos: Mapping[str, osxphotos.PhotoInfo], px: API, dry_run: bool=True) -> None:
     '''
     Synchronize an Album with the Pix-Star service.
     '''
@@ -185,6 +187,7 @@ in the configuration file
 
     args = ap.parse_args()
 
+    # TODO: Fix logging issues due to import of osxphotos
     logging.basicConfig(
         style='{', stream=sys.stderr,
         format='{asctime} {levelname} {filename}:{lineno} - {message}',
@@ -252,9 +255,6 @@ in the configuration file
 
     logging.info('Connecting to Photos database')
 
-    # XXX: Move this import out of the normal area so that it runs after
-    #      configuring logging. Without this, it will stomp on our
-    import osxphotos
     pdb = osxphotos.PhotosDB()
 
     # Pre-authenticated API objects so that we don't prompt users multiple times
