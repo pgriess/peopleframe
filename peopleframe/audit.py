@@ -45,29 +45,40 @@ import sys
 
 import osxphotos
 
+
 def faces():
     ap = ArgumentParser()
     ap.add_argument(
-        '-v', dest='verbosity', action='count', default=0,
-        help='increase logging verbosity; can be used multiple times')
+        "-v",
+        dest="verbosity",
+        action="count",
+        default=0,
+        help="increase logging verbosity; can be used multiple times",
+    )
 
     args = ap.parse_args()
 
     # TODO: Fix logging issues due to import of osxphotos
     logging.basicConfig(
-        style='{', format='{message}', stream=sys.stderr,
-        level=logging.ERROR - args.verbosity * 10)
+        style="{",
+        format="{message}",
+        stream=sys.stderr,
+        level=logging.ERROR - args.verbosity * 10,
+    )
 
     pdb = osxphotos.PhotosDB()
     person_infos = sorted(
-        [pi for pi in pdb.person_info if pi.name =='_UNKNOWN_' and pi.facecount > 0],
+        [pi for pi in pdb.person_info if pi.name == "_UNKNOWN_" and pi.facecount > 0],
         key=lambda pi: pi.facecount,
-        reverse=True)
+        reverse=True,
+    )
     for pi in person_infos:
-        print(f'{pi.uuid}')
+        print(f"{pi.uuid}")
         for fi in pi.face_info:
-            print(f'  fi={fi.uuid}; q={fi.quality}; p={fi.photo.path}, c=({fi.center_x}, {fi.center_y})')
+            print(
+                f"  fi={fi.uuid}; q={fi.quality}; p={fi.photo.path}, c=({fi.center_x}, {fi.center_y})"
+            )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     faces()
