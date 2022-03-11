@@ -39,46 +39,34 @@
 #       - Need a way to mark photos so that they don't show up in the tool
 #         anymore, e.g. a photo that has ONLY people that we don't care about.
 
-from argparse import ArgumentParser
-import logging
 import sys
 
-import osxphotos
+from PyQt6.QtWidgets import QApplication, QLabel, QStyle, QWidget
+from PyQt6.QtGui import QGuiApplication
+from PyQt6.QtCore import Qt, QSize
 
 
-def faces():
-    ap = ArgumentParser()
-    ap.add_argument(
-        "-v",
-        dest="verbosity",
-        action="count",
-        default=0,
-        help="increase logging verbosity; can be used multiple times",
+def main():
+    app = QApplication(sys.argv)
+    widget = QWidget()
+
+    textLabel = QLabel(widget)
+    textLabel.setText("Hello World!")
+    textLabel.move(110, 85)
+
+    # Center the window
+    widget.setGeometry(
+        QStyle.alignedRect(
+            Qt.LayoutDirection.LeftToRight,
+            Qt.AlignmentFlag.AlignCenter,
+            QSize(800, 400),
+            QGuiApplication.primaryScreen().availableGeometry(),
+        )
     )
-
-    args = ap.parse_args()
-
-    # TODO: Fix logging issues due to import of osxphotos
-    logging.basicConfig(
-        style="{",
-        format="{message}",
-        stream=sys.stderr,
-        level=logging.ERROR - args.verbosity * 10,
-    )
-
-    pdb = osxphotos.PhotosDB()
-    person_infos = sorted(
-        [pi for pi in pdb.person_info if pi.name == "_UNKNOWN_" and pi.facecount > 0],
-        key=lambda pi: pi.facecount,
-        reverse=True,
-    )
-    for pi in person_infos:
-        print(f"{pi.uuid}")
-        for fi in pi.face_info:
-            print(
-                f"  fi={fi.uuid}; q={fi.quality}; p={fi.photo.path}, c=({fi.center_x}, {fi.center_y})"
-            )
+    widget.setWindowTitle("PyQt6 Example")
+    widget.show()
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
-    faces()
+    main()
