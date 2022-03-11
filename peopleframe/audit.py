@@ -41,8 +41,9 @@
 
 import sys
 
-from PyQt6.QtWidgets import QApplication, QLabel, QStyle, QWidget
-from PyQt6.QtGui import QGuiApplication
+import osxphotos
+from PyQt6.QtWidgets import QApplication, QLabel, QStyle, QWidget, QGridLayout
+from PyQt6.QtGui import QGuiApplication, QImage, QPixmap
 from PyQt6.QtCore import Qt, QSize
 
 
@@ -50,9 +51,36 @@ def main():
     app = QApplication(sys.argv)
     widget = QWidget()
 
-    textLabel = QLabel(widget)
-    textLabel.setText("Hello World!")
-    textLabel.move(110, 85)
+    layout = QGridLayout(widget)
+
+    images = []
+    pdb = osxphotos.PhotosDB()
+    for pi in sorted(
+        [pi for pi in pdb.person_info if pi.facecount > 0 and pi.name == "_UNKNOWN_"],
+        key=lambda pi: pi.facecount,
+        reverse=True,
+    ):
+        # XXX: Why?
+        if not pi.keyface:
+            continue
+
+        # XXX: Why?
+        if not pi.keyphoto:
+            continue
+
+        images.append(QImage(pi.keyphoto.path))
+        if len(images) >= 6:
+            break
+
+    for c in range(3):
+        for r in range(2):
+            label = QLabel(widget)
+            label.setPixmap(
+                QPixmap.fromImage(images[c * 2 + r]).scaled(
+                    400, 400, Qt.AspectRatioMode.KeepAspectRatio
+                )
+            )
+            layout.addWidget(label, r, c)
 
     # Center the window
     widget.setGeometry(
