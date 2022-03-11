@@ -43,8 +43,8 @@ import sys
 
 import osxphotos
 from PyQt6.QtWidgets import QApplication, QLabel, QStyle, QWidget, QGridLayout
-from PyQt6.QtGui import QGuiApplication, QImage, QPixmap
-from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtGui import QGuiApplication, QImage, QPixmap, QPainter, QPen, QColor
+from PyQt6.QtCore import Qt, QSize, QPoint
 
 
 def main():
@@ -68,12 +68,30 @@ def main():
         if not pi.keyphoto:
             continue
 
-        images.append(QImage(pi.keyphoto.path))
-        if len(images) >= 6:
+        for fi in pi.face_info:
+            if fi._pk == pi.keyface:
+                break
+
+        qi = QImage(pi.keyphoto.path)
+        qp = QPainter(qi)
+        pen = QPen(QColor.fromRgb(255, 0, 255))
+        pen.setWidth(20)
+        qp.setPen(pen)
+
+        qp.drawEllipse(
+            QPoint(fi.center[0], fi.center[1]),
+            # XXX: What is the right rx/ry?
+            int(fi.size * fi.source_width),
+            int(fi.size * fi.source_width),
+        )
+        qp.end()
+
+        images.append(qi)
+        if len(images) >= 9:
             break
 
     for c in range(3):
-        for r in range(2):
+        for r in range(3):
             label = QLabel(widget)
             label.setPixmap(
                 QPixmap.fromImage(images[c * 2 + r]).scaled(
@@ -87,7 +105,7 @@ def main():
         QStyle.alignedRect(
             Qt.LayoutDirection.LeftToRight,
             Qt.AlignmentFlag.AlignCenter,
-            QSize(800, 400),
+            layout.geometry().size(),
             QGuiApplication.primaryScreen().availableGeometry(),
         )
     )
