@@ -96,13 +96,15 @@ def main():
             int(fi.size * fi.source_width),
         )
 
+        print(f"person={pi.uuid}; keyphoto={pi.keyphoto.uuid}, fi={fi.uuid}")
+
         images.append((pi, qi))
         if len(images) >= 9:
             break
 
-    for c in range(3):
-        for r in range(3):
-            pi, qi = images[c * 2 + r]
+    for r in range(3):
+        for c in range(3):
+            pi, qi = images[r * 3 + c]
 
             def click(pi):
                 check_call(
@@ -117,7 +119,7 @@ def main():
                         ),
                     ]
                 )
-                print(f"path is {pi.keyphoto.path}")
+                print(f"photo={pi.uuid}: path={pi.keyphoto.path}")
 
             w = QWidget()
             vlayout = QVBoxLayout(w)
