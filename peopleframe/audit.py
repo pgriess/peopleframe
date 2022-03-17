@@ -39,10 +39,21 @@
 #       - Need a way to mark photos so that they don't show up in the tool
 #         anymore, e.g. a photo that has ONLY people that we don't care about.
 
+from functools import partial
+import os.path
+from subprocess import check_call
 import sys
 
 import osxphotos
-from PyQt6.QtWidgets import QApplication, QLabel, QStyle, QWidget, QGridLayout
+from PyQt6.QtWidgets import (
+    QApplication,
+    QLabel,
+    QStyle,
+    QWidget,
+    QGridLayout,
+    QVBoxLayout,
+    QPushButton,
+)
 from PyQt6.QtGui import QGuiApplication, QImage, QPixmap, QPainter, QPen, QColor
 from PyQt6.QtCore import Qt, QSize, QPoint
 
@@ -84,23 +95,50 @@ def main():
             int(fi.size * fi.source_width),
             int(fi.size * fi.source_width),
         )
-        qp.end()
 
-        images.append(qi)
+        images.append((pi, qi))
         if len(images) >= 9:
             break
 
     for c in range(3):
         for r in range(3):
-            label = QLabel(widget)
+            pi, qi = images[c * 2 + r]
+
+            def click(pi):
+                check_call(
+                    args=[
+                        "automator",
+                        "-i",
+                        pi.keyphoto.path,
+                        os.path.join(
+                            os.path.dirname(__file__),
+                            "..",
+                            "Display referenced photo.workflow",
+                        ),
+                    ]
+                )
+                print(f"path is {pi.keyphoto.path}")
+
+            w = QWidget()
+            vlayout = QVBoxLayout(w)
+
+            label = QLabel()
+            vlayout.addWidget(label)
             label.setPixmap(
-                QPixmap.fromImage(images[c * 2 + r]).scaled(
+                QPixmap.fromImage(qi).scaled(
                     400, 400, Qt.AspectRatioMode.KeepAspectRatio
                 )
             )
-            layout.addWidget(label, r, c)
+
+            pb = QPushButton("Open")
+            vlayout.addWidget(pb)
+            pb.clicked.connect(partial(click, pi))
+
+            layout.addWidget(w, r, c)
 
     # Center the window
+    #
+    # XXX: This is broken. It's centering the top-left corner.
     widget.setGeometry(
         QStyle.alignedRect(
             Qt.LayoutDirection.LeftToRight,
