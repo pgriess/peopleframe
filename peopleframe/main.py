@@ -4,11 +4,17 @@ import dataclasses
 import enum
 from io import BytesIO
 import logging
+import os
 import os.path
 from random import sample
 from ssl import CERT_NONE, SSLContext
 import sys
 from typing import IO, List, Mapping, Optional
+
+# Set up for Wand / ImageMagick
+dn = os.path.dirname(__file__)
+os.environ["MAGICK_HOME"] = os.path.dirname(__file__)
+os.environ["WAND_MAGICK_LIBRARY_SUFFIX"] = "-7.Q16HDRI.10"
 
 import osxphotos
 from pyxstar.api import API

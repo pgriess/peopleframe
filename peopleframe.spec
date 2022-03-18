@@ -2,7 +2,20 @@
 from PyInstaller.utils.hooks import collect_all
 
 datas = []
-binaries = []
+binaries = [
+    ('/opt/homebrew/lib/libMagickWand-7.Q16HDRI.10.dylib', '.'),
+    ('/opt/homebrew/lib/libMagickCore-7.Q16HDRI.10.dylib', '.'),
+    ('/opt/homebrew/lib/libomp.dylib', '.'),
+	('/opt/homebrew/lib/liblcms2.2.dylib', '.'),
+	('/opt/homebrew/lib/liblqr-1.0.dylib', '.'),
+	('/opt/homebrew/lib/libglib-2.0.0.dylib', '.'),
+	('/opt/homebrew/lib/libintl.8.dylib', '.'),
+	('/opt/homebrew/lib/libfontconfig.1.dylib', '.'),
+	('/opt/homebrew/lib/libfreetype.6.dylib', '.'),
+	('/opt/homebrew/lib/libltdl.7.dylib', '.'),
+	('/opt/homebrew/lib/libpng16.16.dylib', '.'),
+	('/opt/homebrew/lib/libpcre.1.dylib', '.'),
+]
 hiddenimports = []
 tmp_ret = collect_all('osxphotos')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
