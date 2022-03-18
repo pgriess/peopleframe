@@ -2,6 +2,18 @@ Sync macOS Photos library to digital photo frames.
 
 ## Installation
 
+Install Python via `pyenv`, configured with support for shared libraries. Without this, we will not be able to use `pyinstaller`.
+
+```bash 
+PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 3.10.2
+```
+
+Install ImageMagick via `brew`
+
+```bash
+brew install imagemagick
+```
+
 Build the `peopleframe` binary
 
 ```bash
@@ -70,5 +82,7 @@ This spec file was generated as a by-product of running the following. Without
 the extra `--collect-all` options, various resources were missing.
 
 ```bash
-pyinstaller -Fc --collect-all osxphotos --collect-all photoscript ./peopleframe/main.py
+pyinstaller \
+    -Fc --collect-all osxphotos --collect-all photoscript \
+    ./peopleframe/main.py
 ```
