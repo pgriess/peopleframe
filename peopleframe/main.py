@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 from configparser import ConfigParser
-from dataclasses import dataclass
+import dataclasses
 import enum
 from io import BytesIO
 import logging
@@ -20,7 +20,7 @@ class SelectionCriteria(enum.Enum):
     RECENT = enum.auto()
 
 
-@dataclass
+@dataclasses.dataclass
 class Album:
     """An album to synchronize."""
 
@@ -28,7 +28,7 @@ class Album:
     username: Optional[str] = None
     password: Optional[str] = None
     count: int = 10
-    people: List[str] = []
+    people: List[str] = dataclasses.field(default_factory=list)
     score: float = 0.5
     selection_criteria = SelectionCriteria.RECENT
 
