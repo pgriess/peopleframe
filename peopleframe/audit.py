@@ -55,7 +55,58 @@ from PyQt6.QtWidgets import (
     QPushButton,
 )
 from PyQt6.QtGui import QGuiApplication, QImage, QPixmap, QPainter, QPen, QColor
-from PyQt6.QtCore import Qt, QSize, QPoint
+from PyQt6.QtCore import Qt, QSize, QPoint, pyqtSignal, pyqtSlot
+
+
+class PersonWidget(QWidget):
+    """
+    A QWidget representing providing functionality for interacting with a
+    PersonInfo.
+    """
+
+    person: osxphotos.PersonInfo
+    open_person: pyqtSignal = pyqtSignal(osxphotos.PersonInfo)
+
+    def __init__(self, person: osxphotos.PersonInfo, parent=None):
+        super(PersonWidget, self).__init__(parent)
+
+        self.person = person
+
+        image = self.load_person_image(person)
+        layout = QVBoxLayout(self)
+        label = QLabel()
+        layout.addWidget(label)
+        label.setPixmap(
+            QPixmap.fromImage(image).scaled(
+                400, 400, Qt.AspectRatioMode.KeepAspectRatio
+            )
+        )
+
+        pb = QPushButton("Open")
+        pb.clicked.connect(lambda: self.open_person.emit(self.person))
+        layout.addWidget(pb)
+
+    def load_person_image(self, person: osxphotos.PersonInfo) -> QImage:
+        """Load a QImage representing the given PersonInfo."""
+
+        for fi in person.face_info:
+            if fi._pk == person.keyface:
+                break
+
+        qi = QImage(person.keyphoto.path)
+        qp = QPainter(qi)
+        pen = QPen(QColor.fromRgb(255, 0, 255))
+        pen.setWidth(20)
+        qp.setPen(pen)
+
+        qp.drawEllipse(
+            QPoint(fi.center[0], fi.center[1]),
+            # XXX: What is the right rx/ry?
+            int(fi.size * fi.source_width),
+            int(fi.size * fi.source_width),
+        )
+
+        return qi
 
 
 def main():
@@ -64,7 +115,7 @@ def main():
 
     layout = QGridLayout(widget)
 
-    images = []
+    people = []
     pdb = osxphotos.PhotosDB()
     for pi in sorted(
         [pi for pi in pdb.person_info if pi.facecount > 0 and pi.name == "_UNKNOWN_"],
@@ -79,39 +130,23 @@ def main():
         if not pi.keyphoto:
             continue
 
-        for fi in pi.face_info:
-            if fi._pk == pi.keyface:
-                break
-
-        qi = QImage(pi.keyphoto.path)
-        qp = QPainter(qi)
-        pen = QPen(QColor.fromRgb(255, 0, 255))
-        pen.setWidth(20)
-        qp.setPen(pen)
-
-        qp.drawEllipse(
-            QPoint(fi.center[0], fi.center[1]),
-            # XXX: What is the right rx/ry?
-            int(fi.size * fi.source_width),
-            int(fi.size * fi.source_width),
-        )
-
-        print(f"person={pi.uuid}; keyphoto={pi.keyphoto.uuid}, fi={fi.uuid}")
-
-        images.append((pi, qi))
-        if len(images) >= 9:
+        people.append(pi)
+        if len(people) >= 9:
             break
 
     for r in range(3):
         for c in range(3):
-            pi, qi = images[r * 3 + c]
+            pi = people[r * 3 + c]
 
-            def click(pi):
+            @pyqtSlot()
+            def click(person: osxphotos.PersonInfo):
+                print(f"photo={person.uuid}: path={person.keyphoto.path}")
+
                 check_call(
                     args=[
                         "automator",
                         "-i",
-                        pi.keyphoto.path,
+                        person.keyphoto.path,
                         os.path.join(
                             os.path.dirname(__file__),
                             "..",
@@ -119,24 +154,11 @@ def main():
                         ),
                     ]
                 )
-                print(f"photo={pi.uuid}: path={pi.keyphoto.path}")
 
-            w = QWidget()
-            vlayout = QVBoxLayout(w)
+            pw = PersonWidget(pi)
+            pw.open_person.connect(click)
 
-            label = QLabel()
-            vlayout.addWidget(label)
-            label.setPixmap(
-                QPixmap.fromImage(qi).scaled(
-                    400, 400, Qt.AspectRatioMode.KeepAspectRatio
-                )
-            )
-
-            pb = QPushButton("Open")
-            vlayout.addWidget(pb)
-            pb.clicked.connect(partial(click, pi))
-
-            layout.addWidget(w, r, c)
+            layout.addWidget(pw, r, c)
 
     # Center the window
     #
