@@ -39,61 +39,51 @@
 #       - Need a way to mark photos so that they don't show up in the tool
 #         anymore, e.g. a photo that has ONLY people that we don't care about.
 
-from functools import partial
-import os.path
+from itertools import islice
 from subprocess import check_call
 import sys
+from typing import List, Optional
 
 import osxphotos
 from PyQt6.QtWidgets import (
     QApplication,
     QLabel,
-    QStyle,
     QWidget,
     QGridLayout,
     QVBoxLayout,
     QPushButton,
+    QMainWindow,
 )
-from PyQt6.QtGui import QGuiApplication, QImage, QPixmap, QPainter, QPen, QColor
-from PyQt6.QtCore import Qt, QSize, QPoint, pyqtSignal, pyqtSlot
+from PyQt6.QtGui import QImage, QPixmap, QPainter, QPen, QColor
+from PyQt6.QtCore import Qt, QPoint, pyqtSignal, pyqtSlot
 
 
-class PersonWidget(QWidget):
-    """
-    A QWidget representing providing functionality for interacting with a
-    PersonInfo.
-    """
+class PersonWindow(QWidget):
+    person_info: osxphotos.PersonInfo
 
-    person: osxphotos.PersonInfo
-    open_person: pyqtSignal = pyqtSignal(osxphotos.PersonInfo)
+    def __init__(self, pi: osxphotos.PersonInfo):
+        super(PersonWindow, self).__init__()
+        self.resize(100, 100)
 
-    def __init__(self, person: osxphotos.PersonInfo, parent=None):
-        super(PersonWidget, self).__init__(parent)
+        self.person_info = pi
 
-        self.person = person
+        layout = QGridLayout(self)
+        for idx, fi in enumerate(islice(pi.face_info, 9)):
+            row = int(idx / 3)
+            col = idx % 3
 
-        image = self.load_person_image(person)
-        layout = QVBoxLayout(self)
-        label = QLabel()
-        layout.addWidget(label)
-        label.setPixmap(
-            QPixmap.fromImage(image).scaled(
-                400, 400, Qt.AspectRatioMode.KeepAspectRatio
+            qi = self.load_face_image(fi)
+
+            label = QLabel()
+            label.setPixmap(
+                QPixmap.fromImage(qi).scaled(
+                    400, 400, Qt.AspectRatioMode.KeepAspectRatio
+                )
             )
-        )
+            layout.addWidget(label, row, col)
 
-        pb = QPushButton("Open")
-        pb.clicked.connect(lambda: self.open_person.emit(self.person))
-        layout.addWidget(pb)
-
-    def load_person_image(self, person: osxphotos.PersonInfo) -> QImage:
-        """Load a QImage representing the given PersonInfo."""
-
-        for fi in person.face_info:
-            if fi._pk == person.keyface:
-                break
-
-        qi = QImage(person.keyphoto.path)
+    def load_face_image(self, fi: osxphotos.personinfo.FaceInfo) -> QImage:
+        qi = QImage(fi.photo.path)
         qp = QPainter(qi)
         pen = QPen(QColor.fromRgb(255, 0, 255))
         pen.setWidth(20)
@@ -109,14 +99,94 @@ class PersonWidget(QWidget):
         return qi
 
 
-def main():
-    app = QApplication(sys.argv)
-    widget = QWidget()
+class PersonPreviewTile(QWidget):
+    """
+    A tile showing preview of a given PersonInfo.
+    """
 
-    layout = QGridLayout(widget)
+    person_info: osxphotos.PersonInfo
+    open_person: pyqtSignal = pyqtSignal(osxphotos.PersonInfo)
 
-    people = []
-    pdb = osxphotos.PhotosDB()
+    def __init__(self, pi: osxphotos.PersonInfo, parent: Optional[QWidget] = None):
+        super(PersonPreviewTile, self).__init__(parent)
+
+        self.person_info = pi
+
+        image = self.load_person_image(pi)
+        layout = QVBoxLayout(self)
+        label = QLabel()
+        layout.addWidget(label)
+        label.setPixmap(
+            QPixmap.fromImage(image).scaled(
+                400, 400, Qt.AspectRatioMode.KeepAspectRatio
+            )
+        )
+
+        pb = QPushButton("Open")
+        pb.clicked.connect(lambda: self.open_person.emit(self.person_info))
+        layout.addWidget(pb)
+
+    def load_person_image(self, pi: osxphotos.PersonInfo) -> QImage:
+        """Load a QImage representing the given PersonInfo."""
+
+        for fi in pi.face_info:
+            if fi._pk == pi.keyface:
+                break
+
+        qi = QImage(pi.keyphoto.path)
+        qp = QPainter(qi)
+        pen = QPen(QColor.fromRgb(255, 0, 255))
+        pen.setWidth(20)
+        qp.setPen(pen)
+
+        qp.drawEllipse(
+            QPoint(fi.center[0], fi.center[1]),
+            # XXX: What is the right rx/ry?
+            int(fi.size * fi.source_width),
+            int(fi.size * fi.source_width),
+        )
+
+        return qi
+
+
+class PeopleWindow(QMainWindow):
+    """
+    Main window that shows preview tiles for a collection of people.
+    """
+
+    person_infos: List[osxphotos.PersonInfo]
+    open_person: pyqtSignal = pyqtSignal(osxphotos.PersonInfo)
+    view: QWidget
+
+    # XXX: Why do we need the two resize() calls? Drop the parent and we clip
+    #      the child. Drop the child, and the content is way too small.
+    def __init__(self, person_infos: List[osxphotos.PersonInfo]):
+        super(PeopleWindow, self).__init__()
+        self.resize(1000, 1000)
+        self.setWindowTitle("Audit faces")
+
+        self.person_infos = person_infos
+
+        self.view = QWidget(self)
+        self.view.resize(1000, 1000)
+        layout = QGridLayout(self.view)
+
+        for r in range(3):
+            for c in range(3):
+                pi = person_infos[r * 3 + c]
+
+                pw = PersonPreviewTile(pi)
+                pw.open_person.connect(self.clicked)
+
+                layout.addWidget(pw, r, c)
+
+    @pyqtSlot(osxphotos.PersonInfo)
+    def clicked(self, pi: osxphotos.PersonInfo):
+        self.open_person.emit(pi)
+
+
+def load_person_infos(pdb: osxphotos.PhotosDB) -> List[osxphotos.PersonInfo]:
+    person_infos: List[osxphotos.PersonInfo] = []
     for pi in sorted(
         [pi for pi in pdb.person_info if pi.facecount > 0 and pi.name == "_UNKNOWN_"],
         key=lambda pi: pi.facecount,
@@ -130,49 +200,33 @@ def main():
         if not pi.keyphoto:
             continue
 
-        people.append(pi)
-        if len(people) >= 9:
+        person_infos.append(pi)
+        if len(person_infos) >= 9:
             break
 
-    for r in range(3):
-        for c in range(3):
-            pi = people[r * 3 + c]
+    return person_infos
 
-            @pyqtSlot()
-            def click(person: osxphotos.PersonInfo):
-                print(f"photo={person.uuid}: path={person.keyphoto.path}")
 
-                check_call(
-                    args=[
-                        "automator",
-                        "-i",
-                        person.keyphoto.path,
-                        os.path.join(
-                            os.path.dirname(__file__),
-                            "..",
-                            "Display referenced photo.workflow",
-                        ),
-                    ]
-                )
+def main():
+    app = QApplication(sys.argv)
 
-            pw = PersonWidget(pi)
-            pw.open_person.connect(click)
+    pdb = osxphotos.PhotosDB()
+    person_infos = load_person_infos(pdb)
 
-            layout.addWidget(pw, r, c)
+    person_window: PersonWindow = None
 
-    # Center the window
-    #
-    # XXX: This is broken. It's centering the top-left corner.
-    widget.setGeometry(
-        QStyle.alignedRect(
-            Qt.LayoutDirection.LeftToRight,
-            Qt.AlignmentFlag.AlignCenter,
-            layout.geometry().size(),
-            QGuiApplication.primaryScreen().availableGeometry(),
-        )
-    )
-    widget.setWindowTitle("PyQt6 Example")
-    widget.show()
+    @pyqtSlot(osxphotos.PersonInfo)
+    def open_person_clicked(pi: osxphotos.PersonInfo):
+        nonlocal person_window
+
+        assert person_window is None
+        person_window = PersonWindow(pi)
+        person_window.show()
+
+    people_window = PeopleWindow(person_infos)
+    people_window.open_person.connect(open_person_clicked)
+    people_window.show()
+
     sys.exit(app.exec())
 
 
