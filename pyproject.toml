@@ -19,7 +19,7 @@ black = "^22.1.0"
 
 [tool.poetry.scripts]
 peopleframe = "peopleframe.main:main"
-audit_faces = "peopleframe.audit:main"
+audit_faces = "peopleframe.audit.audit:main"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

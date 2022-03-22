@@ -58,6 +58,28 @@ from PyQt6.QtGui import QImage, QPixmap, QPainter, QPen, QColor
 from PyQt6.QtCore import Qt, QPoint, pyqtSignal, pyqtSlot
 
 
+def pdb_photo_to_image(
+    pi: osxphotos.PhotoInfo,
+    fi: Optional[osxphotos.personinfo.FaceInfo],
+) -> QImage:
+    qi = QImage(pi.path)
+
+    if fi is not None:
+        qp = QPainter(qi)
+        pen = QPen(QColor.fromRgb(255, 0, 255))
+        pen.setWidth(20)
+        qp.setPen(pen)
+
+        qp.drawEllipse(
+            QPoint(fi.center[0], fi.center[1]),
+            # XXX: What is the right rx/ry?
+            int(fi.size * fi.source_width),
+            int(fi.size * fi.source_width),
+        )
+
+    return qi
+
+
 class PersonWindow(QWidget):
     person_info: osxphotos.PersonInfo
 
@@ -72,31 +94,14 @@ class PersonWindow(QWidget):
             row = int(idx / 3)
             col = idx % 3
 
-            qi = self.load_face_image(fi)
-
             label = QLabel()
+            image = pdb_photo_to_image(fi.photo, fi)
             label.setPixmap(
-                QPixmap.fromImage(qi).scaled(
+                QPixmap.fromImage(image).scaled(
                     400, 400, Qt.AspectRatioMode.KeepAspectRatio
                 )
             )
             layout.addWidget(label, row, col)
-
-    def load_face_image(self, fi: osxphotos.personinfo.FaceInfo) -> QImage:
-        qi = QImage(fi.photo.path)
-        qp = QPainter(qi)
-        pen = QPen(QColor.fromRgb(255, 0, 255))
-        pen.setWidth(20)
-        qp.setPen(pen)
-
-        qp.drawEllipse(
-            QPoint(fi.center[0], fi.center[1]),
-            # XXX: What is the right rx/ry?
-            int(fi.size * fi.source_width),
-            int(fi.size * fi.source_width),
-        )
-
-        return qi
 
 
 class PersonPreviewTile(QWidget):
@@ -112,7 +117,14 @@ class PersonPreviewTile(QWidget):
 
         self.person_info = pi
 
-        image = self.load_person_image(pi)
+        # Find the face to use for this person
+        for fi in pi.face_info:
+            if fi._pk == pi.keyface:
+                break
+        else:
+            raise Exception("Failed to find key face")
+
+        image = pdb_photo_to_image(pi.keyphoto, fi)
         layout = QVBoxLayout(self)
         label = QLabel()
         layout.addWidget(label)
@@ -125,28 +137,6 @@ class PersonPreviewTile(QWidget):
         pb = QPushButton("Open")
         pb.clicked.connect(lambda: self.open_person.emit(self.person_info))
         layout.addWidget(pb)
-
-    def load_person_image(self, pi: osxphotos.PersonInfo) -> QImage:
-        """Load a QImage representing the given PersonInfo."""
-
-        for fi in pi.face_info:
-            if fi._pk == pi.keyface:
-                break
-
-        qi = QImage(pi.keyphoto.path)
-        qp = QPainter(qi)
-        pen = QPen(QColor.fromRgb(255, 0, 255))
-        pen.setWidth(20)
-        qp.setPen(pen)
-
-        qp.drawEllipse(
-            QPoint(fi.center[0], fi.center[1]),
-            # XXX: What is the right rx/ry?
-            int(fi.size * fi.source_width),
-            int(fi.size * fi.source_width),
-        )
-
-        return qi
 
 
 class PeopleWindow(QMainWindow):
