@@ -12,9 +12,11 @@ import sys
 from typing import IO, List, Mapping, Optional
 
 # Set up for Wand / ImageMagick
-dn = os.path.dirname(__file__)
-os.environ["MAGICK_HOME"] = os.path.dirname(__file__)
-os.environ["WAND_MAGICK_LIBRARY_SUFFIX"] = "-7.Q16HDRI.10"
+if "MAGICK_HOME" not in os.environ:
+    os.environ["MAGICK_HOME"] = os.path.dirname(__file__)
+
+if "WAND_MAGICK_LIBRARY_SUFFIX" not in os.environ:
+    os.environ["WAND_MAGICK_LIBRARY_SUFFIX"] = "-7.Q16HDRI.10"
 
 import osxphotos
 from pyxstar.api import API
