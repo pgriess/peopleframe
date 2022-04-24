@@ -20,11 +20,16 @@ Build the `peopleframe` binary
 poetry run pyinstaller ./peopleframe.spec
 ```
 
-Copy the `peopleframe` binary somewhere static, e.g.
+Install the `peopleframe` binary somewhere static, e.g.
 
 ```bash
-cp dist/peopleframe ~/bin
+mv dist/peopleframe ~/bin
 ```
+
+Note that [apparently](https://developer.apple.com/forums/thread/130313) using
+`cp` do this triggers a kernel bug where the previously-cached metadata for the
+old binary will be used, causing the new one to fail signature checks. Using
+`mv` works around this. Presumably a reboot would as well?
 
 Install a launch agent.
 
