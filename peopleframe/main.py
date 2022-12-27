@@ -2,25 +2,19 @@ from argparse import ArgumentParser
 from configparser import ConfigParser
 import dataclasses
 import enum
-from io import BytesIO
+import io
 import logging
 import os
 import os.path
 from random import sample
 from ssl import CERT_NONE, SSLContext
+import subprocess
 import sys
+import tempfile
 from typing import IO, List, Mapping, Optional
-
-# Set up for Wand / ImageMagick
-if "MAGICK_HOME" not in os.environ:
-    os.environ["MAGICK_HOME"] = os.path.dirname(__file__)
-
-if "WAND_MAGICK_LIBRARY_SUFFIX" not in os.environ:
-    os.environ["WAND_MAGICK_LIBRARY_SUFFIX"] = "-7.Q16HDRI.10"
 
 import osxphotos
 from pyxstar.api import API
-from wand.image import Image
 
 
 class SelectionCriteria(enum.Enum):
@@ -69,12 +63,10 @@ def export_photo(p: osxphotos.PhotoInfo, mime_type: str) -> IO:
 
     assert mime_type == "image/jpeg"
 
-    wio = BytesIO()
-    with Image(filename=p.path) as img:
-        img.format = "jpeg"
-        img.save(file=wio)
-
-    return BytesIO(bytes(wio.getbuffer()))
+    with tempfile.NamedTemporaryFile() as tf:
+        subprocess.check_call(["convert", p.path, f"jpeg:{tf.name}"])
+        tf.seek(0, io.SEEK_SET)
+        return io.BytesIO(tf.read())
 
 
 def album_pdb_photos(
