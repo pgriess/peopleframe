@@ -5,8 +5,8 @@ description = ""
 authors = ["Peter Griess <pg@std.in>"]
 
 [tool.poetry.dependencies]
-osxphotos = "^0.46.1"
-python = ">=3.7,<3.11"
+osxphotos = "^0.67.0"
+python = ">=3.9,<3.11"
 pyxstar = "^0.2.2"
 wand = "^0.6.7"
 
