@@ -82,7 +82,7 @@ the extra `--collect-all` options, various resources were missing.
 
 ```bash
 poetry run pyinstaller \
-    -Fc --collect-all osxphotos --collect-all photoscript \
+    -Fc --collect-all=osxmetadata --collect-all=osxphotos --collect-all=photoscript \
     ./peopleframe/main.py
 ```
 
