@@ -146,7 +146,7 @@ def album_sync(
     px_photos = {uuid_from_name(p.name): p for p in px_photos}
 
     for pn in set(px_photos) - set(pdb_photos):
-        log.debug(f"Deleting {pn} from Pix-Star album")
+        log.info(f"Deleting {pn} from Pix-Star album")
 
         if dry_run:
             continue
@@ -154,7 +154,7 @@ def album_sync(
         px.album_photos_delete(px_album, [px_photos[pn]])
 
     for pn in set(pdb_photos) - set(px_photos):
-        log.debug(f"Uploading {pn} to Pix-Star album")
+        log.info(f"Uploading {pn} to Pix-Star album")
 
         if dry_run:
             continue
