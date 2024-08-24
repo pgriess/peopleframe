@@ -91,3 +91,15 @@ pyinstaller \
     -Fc --collect-all osxphotos --collect-all photoscript \
     ./peopleframe/main.py
 ```
+
+### Run from `poetry`
+
+During development it can be useful to run the application without triggering a full binary build. This can be done using `poetry`, e.g.
+
+```bash
+poetry run peopleframe -vvv -f ~/.peopleframe-random.ini
+```
+
+### Disabling HTTPS certificate validation
+
+This can be useful when running against an HTTPS debugging proxy like [Charles](https://charlesproxy.com/) which self-signs its own certificates. Passing the `-k` flag to the `peopleframe` binary will disable this checking.
