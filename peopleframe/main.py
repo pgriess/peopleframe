@@ -148,10 +148,11 @@ def album_sync(
     for pn in set(px_photos) - set(pdb_photos):
         log.info(f"Deleting {pn} from Pix-Star album")
 
-        if dry_run:
-            continue
-
-        px.album_photos_delete(px_album, [px_photos[pn]])
+    if not dry_run:
+        px.album_photos_delete(
+            px_album,
+            [px_photos[pn] for pn in set(px_photos) - set(pdb_photos)],
+        )
 
     for pn in set(pdb_photos) - set(px_photos):
         log.info(f"Uploading {pn} to Pix-Star album")
