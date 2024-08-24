@@ -16,6 +16,8 @@ from typing import IO, List, Mapping, Optional
 import osxphotos
 from pyxstar.api import API
 
+log = logging.getLogger("peopleframe")
+
 
 class SelectionCriteria(enum.Enum):
     RANDOM = enum.auto()
@@ -118,19 +120,19 @@ def album_sync(
     Synchronize an Album with the Pix-Star service.
     """
 
-    logging.info(f"Synchronizing {album}")
+    log.info(f"Synchronizing {album}")
 
     try:
         px_album = px.album(album.name)
     except KeyError:
-        logging.warning(f"Creating missing album {album.name}")
+        log.warning(f"Creating missing album {album.name}")
         px_album = px.album_create(album.name)
 
     px_photos = px.album_photos(px_album)
     px_photos = {uuid_from_name(p.name): p for p in px_photos}
 
     for pn in set(px_photos) - set(pdb_photos):
-        logging.debug(f"Deleting {pn} from Pix-Star album")
+        log.debug(f"Deleting {pn} from Pix-Star album")
 
         if dry_run:
             continue
@@ -138,7 +140,7 @@ def album_sync(
         px.album_photos_delete(px_album, [px_photos[pn]])
 
     for pn in set(pdb_photos) - set(px_photos):
-        logging.debug(f"Uploading {pn} to Pix-Star album")
+        log.debug(f"Uploading {pn} to Pix-Star album")
 
         if dry_run:
             continue
@@ -231,7 +233,18 @@ in the configuration file
 
     args = ap.parse_args()
 
-    # TODO: Fix logging issues due to import of osxphotos
+    # Make sure logging is reset to its out-of-the-box state before we go about
+    # configuring things. This can happen in module-level initialization code
+    # either explicitly (by calling setup APIs) or implicitly (by triggering
+    # logging which then does its own implicit init).
+    if logging.getLogger().hasHandlers():
+        root_logger = logging.getLogger()
+        for h in root_logger.handlers:
+            root_logger.removeHandler(h)
+
+    logging.disable(logging.NOTSET)
+
+    # Now apply the actual logging configuration that we want
     logging.basicConfig(
         style="{",
         stream=sys.stderr,
@@ -301,7 +314,7 @@ in the configuration file
                 args.selection_criteria
             ]
 
-    logging.info("Connecting to Photos database")
+    log.info("Connecting to Photos database")
 
     pdb = osxphotos.PhotosDB()
 
@@ -332,7 +345,7 @@ in the configuration file
 
         album_sync(a, pdb_photos, px, dry_run=args.dry_run)
 
-    logging.info("Done")
+    log.info("Done")
 
 
 if __name__ == "__main__":
