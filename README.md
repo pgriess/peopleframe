@@ -81,7 +81,7 @@ This spec file was generated as a by-product of running the following. Without
 the extra `--collect-all` options, various resources were missing.
 
 ```bash
-pyinstaller \
+poetry run pyinstaller \
     -Fc --collect-all osxphotos --collect-all photoscript \
     ./peopleframe/main.py
 ```
@@ -97,3 +97,7 @@ poetry run peopleframe -vvv -f ~/.peopleframe-random.ini
 ### Disabling HTTPS certificate validation
 
 This can be useful when running against an HTTPS debugging proxy like [Charles](https://charlesproxy.com/) which self-signs its own certificates. Passing the `-k` flag to the `peopleframe` binary will disable this checking.
+
+### Permissions
+
+See [this StackOverflow post](https://apple.stackexchange.com/questions/442220/how-to-stop-iterm2-requiring-being-granted-access-every-time) about iTerm2 requesting permissions to read application data.
