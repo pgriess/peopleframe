@@ -8,12 +8,6 @@ Install Python via `pyenv`, configured with support for shared libraries. Withou
 PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 3.10.2
 ```
 
-Install ImageMagick via `brew`
-
-```bash
-brew install imagemagick
-```
-
 Build the `peopleframe` binary
 
 ```bash

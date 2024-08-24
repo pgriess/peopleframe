@@ -6,6 +6,7 @@ import io
 import logging
 import os
 import os.path
+from pathlib import Path
 from random import sample
 from ssl import CERT_NONE, SSLContext
 import subprocess
@@ -65,10 +66,23 @@ def export_photo(p: osxphotos.PhotoInfo, mime_type: str) -> IO:
 
     assert mime_type == "image/jpeg"
 
-    with tempfile.NamedTemporaryFile() as tf:
-        subprocess.check_call(["convert", p.path, f"jpeg:{tf.name}"])
-        tf.seek(0, io.SEEK_SET)
-        return io.BytesIO(tf.read())
+    # We use a TemporaryDirectory here rather than a NamedTemporaryFile because
+    # the latter does not expect you to write around it (e.g. by shelling out to
+    # sips). It thinks you will write through it and no data has made it into
+    # the file otherwise, attempting to read through the file after writing to
+    # it out-of-band results in perceiving an "empty" file.
+    with tempfile.TemporaryDirectory() as td:
+        dir_path = Path(td)
+        file_path = dir_path / "file.jpeg"
+
+        # Convert with sips(1) because it ships with macOS
+        subprocess.check_call(
+            ["sips", "-s", "format", "jpeg", p.path, "--out", os.fspath(file_path)],
+            stdout=subprocess.DEVNULL,
+        )
+        with open(file_path, mode="rb") as tf:
+            body = tf.read()
+        return io.BytesIO(body)
 
 
 def album_pdb_photos(
