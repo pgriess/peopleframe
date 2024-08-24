@@ -183,7 +183,7 @@ def main():
     ag = ap.add_argument_group(
         "Pix-Star options",
         description="""
-configure how to connect to the Pix-Star service
+Configure how to connect to the Pix-Star service
 """,
     )
     ag.add_argument(
@@ -206,9 +206,9 @@ configure how to connect to the Pix-Star service
     ag.add_argument("-p", dest="password", help="Pix-Star password")
 
     ag = ap.add_argument_group(
-        "album options",
+        "Album options",
         description="""
-configure how specific albums are synchronized; override options specified
+Configure how specific albums are synchronized; override options specified
 in the configuration file
 """,
     )
