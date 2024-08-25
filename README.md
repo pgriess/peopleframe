@@ -2,30 +2,42 @@ Sync macOS Photos library to digital photo frames.
 
 ## Installation
 
+### Install Python via pyenv
+
 Install Python via `pyenv`, configured with support for shared libraries. Without this, we will not be able to use `pyinstaller`.
 
 ```bash 
 PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 3.10.2
 ```
 
-Build the `peopleframe` binary
+### Build the `peopleframe` binary
 
 ```bash
 poetry run pyinstaller ./peopleframe.spec
 ```
 
-Install the `peopleframe` binary somewhere static, e.g.
+### Wrap the binary in a `PeopleFrame.app`
 
-```bash
-mv dist/peopleframe ~/bin
+```
+mkdir -p dist/PeopleFrame.app/Contents/MacOS
+mv dist/peopleframe dist/PeopleFrame.app/Contents/MacOS/PeopleFrame
 ```
 
-Note that [apparently](https://developer.apple.com/forums/thread/130313) using
-`cp` do this triggers a kernel bug where the previously-cached metadata for the
-old binary will be used, causing the new one to fail signature checks. Using
-`mv` works around this. Presumably a reboot would as well?
+### Install `PeopleFrame.app` somewhere static
 
-Install a launch agent.
+```bash
+rm -fr ~/Applications/PeopleFrame.app
+cp -R dist/PeopleFrame.app ~/Applications/
+ln -sf ~/Applications/PeopleFrame.app/Contents/MacOS/PeopleFrame ~/bin/peopleframe
+```
+
+### Grant the `PeopleFrame.app` Full Disk access
+
+Open the "System Settings" macOS application, search for "Privacy & Security", then selected "Full Disk Access". Click the little "+" icon at the bottom left of the list, navigate to ~/Applications and select "PeopleFrame".
+
+Reboot your computer.
+
+### Install a launch agent
 
 To do this, we are going to use the `in.std.peopleframe.XXXXX.plist` file as a
 template so that we can, e.g. run multiple instances of `peopleframe`
@@ -57,7 +69,7 @@ launchctl bootstrap gui/$UID/ ~/Library/LaunchAgents/in.std.peopleframe.LABEL.pl
 
 ## Developer notes
 
-To update `in.std.peopleframe.plist` do this
+### How to update a launch agent
 
 ```bash
 launchctl bootout gui/$UID/ ~/Library/LaunchAgents/in.std.peopleframe.plist
@@ -65,25 +77,10 @@ cp in.std.peopleframe.plist ~/Library/LaunchAgents
 launchctl bootstrap gui/$UID/ ~/Library/LaunchAgents/in.std.peopleframe.plist
 ```
 
-To show details about the agent
+### How to see details of a launch agent
 
 ```bash
 launchctl print gui/$UID/in.std.peopleframe
-```
-
-To build the binary
-
-```bash
-poetry run pyinstaller peopleframe.spec
-```
-
-This spec file was generated as a by-product of running the following. Without
-the extra `--collect-all` options, various resources were missing.
-
-```bash
-poetry run pyinstaller \
-    -Fc --collect-all=osxmetadata --collect-all=osxphotos --collect-all=photoscript \
-    ./peopleframe/main.py
 ```
 
 ### Run from `poetry`
@@ -97,7 +94,3 @@ poetry run peopleframe -vvv -f ~/.peopleframe-random.ini
 ### Disabling HTTPS certificate validation
 
 This can be useful when running against an HTTPS debugging proxy like [Charles](https://charlesproxy.com/) which self-signs its own certificates. Passing the `-k` flag to the `peopleframe` binary will disable this checking.
-
-### Permissions
-
-See [this StackOverflow post](https://apple.stackexchange.com/questions/442220/how-to-stop-iterm2-requiring-being-granted-access-every-time) about iTerm2 requesting permissions to read application data.
