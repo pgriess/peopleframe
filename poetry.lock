@@ -269,7 +269,6 @@ mypy-extensions = ">=0.4.3"
 pathspec = ">=0.9.0"
 platformdirs = ">=2"
 tomli = {version = ">=1.1.0", markers = "python_full_version < \"3.11.0a7\""}
-typing-extensions = {version = ">=3.10.0.0", markers = "python_version < \"3.10\""}
 
 [package.extras]
 colorama = ["colorama (>=0.4.3)"]
@@ -308,14 +307,14 @@ files = [
 
 [[package]]
 name = "certifi"
-version = "2024.7.4"
+version = "2024.8.30"
 description = "Python package for providing Mozilla's CA Bundle."
 category = "main"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "certifi-2024.7.4-py3-none-any.whl", hash = "sha256:c198e21b1289c2ab85ee4e67bb4b4ef3ead0892059901a8d5b622f24a1101e90"},
-    {file = "certifi-2024.7.4.tar.gz", hash = "sha256:5a1e7645bc0ec61a09e26c36f6106dd4cf40c6db3a1fb6352b0244e7fb057c7b"},
+    {file = "certifi-2024.8.30-py3-none-any.whl", hash = "sha256:922820b53db7a7257ffbda3f597266d435245903d80737e34f8a45ff3e3230d8"},
+    {file = "certifi-2024.8.30.tar.gz", hash = "sha256:bec941d2aa8195e248a60b31ff9f0558284cf01a52591ceda73ea9afffd69fd9"},
 ]
 
 [[package]]
@@ -397,6 +396,33 @@ files = [
 
 [package.dependencies]
 pycparser = "*"
+
+[[package]]
+name = "cgmetadata"
+version = "0.1.6"
+description = "Use native Core Graphics / ImageIO API on macOS to access and change image metadata"
+category = "main"
+optional = false
+python-versions = ">3.9"
+files = [
+    {file = "cgmetadata-0.1.6-py3-none-any.whl", hash = "sha256:1879471d63d700cc6de3992eb7617d63aa7b744163e00de9282d129fda53cc52"},
+    {file = "cgmetadata-0.1.6.tar.gz", hash = "sha256:e9c16e3e905947ba0b54978bf04cb3f8c5fa9dadf56467f1e559a25b8e00c359"},
+]
+
+[package.dependencies]
+pyobjc-core = ">=9.2"
+pyobjc-framework-AVFoundation = ">=9.2"
+pyobjc-framework-CoreLocation = ">=9.2"
+pyobjc-framework-Quartz = ">=9.2"
+pyobjc-framework-UniformTypeIdentifiers = ">=9.2"
+rich = ">=13.0.0"
+wheel = ">=0.41.2"
+wurlitzer = ">=3.0.3"
+
+[package.extras]
+dev = ["bump2version (==1.0.1)"]
+docs = ["mkdocs (>=1.4.2)", "mkdocs-material (>=9.0.13)", "mkdocstrings-python (>=0.8.3)"]
+test = ["mypy (>=1.6.1)", "pytest (>=7.4.2)", "pytest-cov"]
 
 [[package]]
 name = "charset-normalizer"
@@ -536,26 +562,6 @@ files = [
     {file = "idna-3.8-py3-none-any.whl", hash = "sha256:050b4e5baadcd44d760cedbd2b8e639f2ff89bbc7a5730fcc662954303377aac"},
     {file = "idna-3.8.tar.gz", hash = "sha256:d838c2c0ed6fced7693d5e8ab8e734d5f8fda53a039c0164afb0b82e771e3603"},
 ]
-
-[[package]]
-name = "importlib-metadata"
-version = "8.4.0"
-description = "Read metadata from Python packages"
-category = "main"
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "importlib_metadata-8.4.0-py3-none-any.whl", hash = "sha256:66f342cc6ac9818fc6ff340576acd24d65ba0b3efabb2b4ac08b598965a4a2f1"},
-    {file = "importlib_metadata-8.4.0.tar.gz", hash = "sha256:9a547d3bc3608b025f93d403fdd1aae741c24fbb8314df4b155675742ce303c5"},
-]
-
-[package.dependencies]
-zipp = ">=0.5"
-
-[package.extras]
-doc = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-lint"]
-perf = ["ipython"]
-test = ["flufl.flake8", "importlib-resources (>=1.3)", "jaraco.test (>=5.4)", "packaging", "pyfakefs", "pytest (>=6,!=8.1.*)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-mypy", "pytest-perf (>=0.9.2)", "pytest-ruff (>=0.2.1)"]
 
 [[package]]
 name = "iniconfig"
@@ -744,6 +750,35 @@ files = [
 
 [package.dependencies]
 altgraph = ">=0.17"
+
+[[package]]
+name = "makelive"
+version = "0.6.1"
+description = "Add the necessary metadata to photo + video pair so Photos recognizes them as Live Photos when imported"
+category = "main"
+optional = false
+python-versions = ">3.9"
+files = [
+    {file = "makelive-0.6.1-py3-none-any.whl", hash = "sha256:d9a19622cb2c8ca8396ea42f13926b8bca2b3851455eeb86151dadd5d8a4bedb"},
+    {file = "makelive-0.6.1.tar.gz", hash = "sha256:06371ff4ea6a6046894632f62264c6563559733044c09707685feb4526954eb6"},
+]
+
+[package.dependencies]
+cgmetadata = ">=0.1.6"
+click = ">=8.0.0"
+pyobjc-core = ">=9.2"
+pyobjc-framework-AVFoundation = ">=9.2"
+pyobjc-framework-Contacts = ">=9.2"
+pyobjc-framework-CoreLocation = ">=9.2"
+pyobjc-framework-Quartz = ">=9.2"
+pyobjc-framework-UniformTypeIdentifiers = ">=9.2"
+wheel = ">=0.41.2"
+wurlitzer = ">=3.0.3"
+
+[package.extras]
+dev = ["applecrate (>=0.2.0)", "bump2version (==1.0.1)"]
+lint = ["ruff (>=0.1.14)"]
+test = ["mypy (>=1.6.1)", "pytest (>=7.4.2)", "pytest-cov"]
 
 [[package]]
 name = "mako"
@@ -980,21 +1015,23 @@ xattr = ">=0.10.1"
 
 [[package]]
 name = "osxphotos"
-version = "0.67.10"
+version = "0.68.5"
 description = "Export photos from Apple's macOS Photos app and query the Photos library database to access metadata about images."
 category = "main"
 optional = false
 python-versions = "<3.13,>=3.9"
 files = [
-    {file = "osxphotos-0.67.10-py3-none-any.whl", hash = "sha256:7a5cf5709c71b49068474365d73176ef095bf35addd9bab8260c36ec8826ace3"},
-    {file = "osxphotos-0.67.10.tar.gz", hash = "sha256:96ae4830cd09b1cc40491c06269ddf8c7d96cf492cd4468cd0c88bdad91601bb"},
+    {file = "osxphotos-0.68.5-py3-none-any.whl", hash = "sha256:859f07ccad0bfba506ca09a55440ffe03c467f4aff1ca9d2493ad170dc3573b7"},
+    {file = "osxphotos-0.68.5.tar.gz", hash = "sha256:505eb5f2ef162b3edfd2373b7ba8388cece9a6a6f23c5eb382246934f075ef06"},
 ]
 
 [package.dependencies]
 bitmath = ">=1.3.3.1,<1.4.0.0"
 bpylist2 = ">=4.1.1,<5.0.0"
+cgmetadata = {version = ">=0.1.6", markers = "sys_platform == \"darwin\""}
 Click = ">=8.1.3,<9.0"
 mac-alias = {version = ">=2.2.2,<3.0.0", markers = "sys_platform == \"darwin\""}
+makelive = {version = ">=0.5.0", markers = "sys_platform == \"darwin\""}
 Mako = ">=1.2.2,<1.3.0"
 more-itertools = ">=8.8.0,<9.0.0"
 objexplore = ">=1.6.3,<2.0.0"
@@ -1056,7 +1093,6 @@ textx = ">=4.0.1,<5.0.0"
 toml = ">=0.10.2,<0.11.0"
 wrapt = ">=1.14.1,<2.0.0"
 wurlitzer = ">=3.0.2,<4.0.0"
-xdg = {version = "5.1.1", markers = "python_version <= \"3.9\""}
 xdg-base-dirs = {version = ">=6.0.0", markers = "python_version >= \"3.10\""}
 
 [[package]]
@@ -1118,14 +1154,14 @@ test = ["Faker (>=1.0.8)", "allpairspy (>=2)", "click (>=6.2)", "pytest (>=6.0.1
 
 [[package]]
 name = "pefile"
-version = "2023.2.7"
+version = "2024.8.26"
 description = "Python PE parsing module"
 category = "dev"
 optional = false
 python-versions = ">=3.6.0"
 files = [
-    {file = "pefile-2023.2.7-py3-none-any.whl", hash = "sha256:da185cd2af68c08a6cd4481f7325ed600a88f6a813bad9dea07ab3ef73d8d8d6"},
-    {file = "pefile-2023.2.7.tar.gz", hash = "sha256:82e6114004b3d6911c77c3953e3838654b04511b8b66e8583db70c65998017dc"},
+    {file = "pefile-2024.8.26-py3-none-any.whl", hash = "sha256:76f8b485dcd3b1bb8166f1128d395fa3d87af26360c2358fb75b80019b957c6f"},
+    {file = "pefile-2024.8.26.tar.gz", hash = "sha256:3ff6c5d8b43e8c37bb6e6dd5085658d658a7a0bdcd20b6a07b1fcfc1c4e9d632"},
 ]
 
 [[package]]
@@ -1309,7 +1345,6 @@ files = [
 
 [package.dependencies]
 altgraph = "*"
-importlib-metadata = {version = ">=4.6", markers = "python_version < \"3.10\""}
 macholib = {version = ">=1.8", markers = "sys_platform == \"darwin\""}
 packaging = ">=22.0"
 pefile = {version = ">=2022.5.30", markers = "sys_platform == \"win32\""}
@@ -1334,7 +1369,6 @@ files = [
 ]
 
 [package.dependencies]
-importlib-metadata = {version = ">=4.6", markers = "python_version < \"3.10\""}
 packaging = ">=22.0"
 setuptools = ">=42.0.0"
 
@@ -1524,6 +1558,43 @@ files = [
 pyobjc-core = ">=10.3.1"
 
 [[package]]
+name = "pyobjc-framework-contacts"
+version = "9.2"
+description = "Wrappers for the framework Contacts on macOS"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "pyobjc-framework-Contacts-9.2.tar.gz", hash = "sha256:1e5ae6a612cae95c010eb5ccf6c2d70a97faf25c7d62b4146fc51424d7fc4b60"},
+    {file = "pyobjc_framework_Contacts-9.2-cp36-abi3-macosx_10_9_universal2.whl", hash = "sha256:ba3f55ccf5d3588b7d5765d7ebea9ddd850c16d02668ee90129c7d4084bf24a1"},
+    {file = "pyobjc_framework_Contacts-9.2-cp36-abi3-macosx_10_9_x86_64.whl", hash = "sha256:002ff8d2131e354138eae39d1a3823770cab8294d93ddbaa2f0776fdb91c11e5"},
+    {file = "pyobjc_framework_Contacts-9.2-cp36-abi3-macosx_11_0_universal2.whl", hash = "sha256:bcf6c6760c09b012da2b01f9b7ed1cf8716c403e3561d2e9188b2e1b49dec8fc"},
+]
+
+[package.dependencies]
+pyobjc-core = ">=9.2"
+pyobjc-framework-Cocoa = ">=9.2"
+
+[[package]]
+name = "pyobjc-framework-contacts"
+version = "10.3.1"
+description = "Wrappers for the framework Contacts on macOS"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "pyobjc_framework_Contacts-10.3.1-cp36-abi3-macosx_10_13_universal2.whl", hash = "sha256:401e40ff638712d011fe54c7b1e9929af994e87cb03d129cd95df2fb90439e4e"},
+    {file = "pyobjc_framework_Contacts-10.3.1-cp36-abi3-macosx_10_9_universal2.whl", hash = "sha256:83de186cd4037171c63899987caa66cc01527688b15176e899cf1a06e6baab09"},
+    {file = "pyobjc_framework_Contacts-10.3.1-cp36-abi3-macosx_10_9_x86_64.whl", hash = "sha256:e0bbffb430505ad3f91fd58f65b0a6e7535ab5bb28c2ca69ee8a6349f3edfe3c"},
+    {file = "pyobjc_framework_Contacts-10.3.1-cp36-abi3-macosx_11_0_universal2.whl", hash = "sha256:d47f694977cf33f5d0b73e2f111edcd57f2ef0cd9a6a38e03b1dea965b8657cc"},
+    {file = "pyobjc_framework_contacts-10.3.1.tar.gz", hash = "sha256:7120b5593a20e936cb5589b93ef7fd5558c86bd6ec8003f427afb87c04bbea20"},
+]
+
+[package.dependencies]
+pyobjc-core = ">=10.3.1"
+pyobjc-framework-Cocoa = ">=10.3.1"
+
+[[package]]
 name = "pyobjc-framework-coreaudio"
 version = "9.2"
 description = "Wrappers for the framework CoreAudio on macOS"
@@ -1561,6 +1632,43 @@ files = [
     {file = "pyobjc_framework_CoreAudio-10.3.1-cp38-cp38-macosx_11_0_universal2.whl", hash = "sha256:4f8d4c4c4fa0529f178ef6d3676cfe08c9e8ae20c3cdbfe067b562d7395debfa"},
     {file = "pyobjc_framework_CoreAudio-10.3.1-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:b93cc6f670feea29f8f4cd2a9511d2220aefde41a89912d5ab8eb06a198e344b"},
     {file = "pyobjc_framework_coreaudio-10.3.1.tar.gz", hash = "sha256:c81c709bf955aea474a4de380b187f3c2e56c864ca7de520b08362b73070c795"},
+]
+
+[package.dependencies]
+pyobjc-core = ">=10.3.1"
+pyobjc-framework-Cocoa = ">=10.3.1"
+
+[[package]]
+name = "pyobjc-framework-corelocation"
+version = "9.2"
+description = "Wrappers for the framework CoreLocation on macOS"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "pyobjc-framework-CoreLocation-9.2.tar.gz", hash = "sha256:a6a59e6d1297f84c99dfa9f4ac3927af2fc851b6a1999617f5c159571f885c43"},
+    {file = "pyobjc_framework_CoreLocation-9.2-cp36-abi3-macosx_10_9_universal2.whl", hash = "sha256:9c03064c621657b994c3d7439eaafd21b7a524189ef4dbd6fba5819ec2d6e3ae"},
+    {file = "pyobjc_framework_CoreLocation-9.2-cp36-abi3-macosx_10_9_x86_64.whl", hash = "sha256:bf362a34332a986705af7e243cd018dbe33aa38db426b17de4f0df4bf5725ee1"},
+    {file = "pyobjc_framework_CoreLocation-9.2-cp36-abi3-macosx_11_0_universal2.whl", hash = "sha256:31c9041f398bc1335410e3ebc9f0a64e68bc7973bb1e7fc3468e266a18cb1049"},
+]
+
+[package.dependencies]
+pyobjc-core = ">=9.2"
+pyobjc-framework-Cocoa = ">=9.2"
+
+[[package]]
+name = "pyobjc-framework-corelocation"
+version = "10.3.1"
+description = "Wrappers for the framework CoreLocation on macOS"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "pyobjc_framework_CoreLocation-10.3.1-cp36-abi3-macosx_10_13_universal2.whl", hash = "sha256:4cc83a730db7f78ca5ceef45ea4c992084d8c90bed189939fa3f51f8e9ea83ae"},
+    {file = "pyobjc_framework_CoreLocation-10.3.1-cp36-abi3-macosx_10_9_universal2.whl", hash = "sha256:97d5aa35214e417c9a03ac7209630dc445b98652932642dd0497f1ec52624bfe"},
+    {file = "pyobjc_framework_CoreLocation-10.3.1-cp36-abi3-macosx_10_9_x86_64.whl", hash = "sha256:86d0e00b7eef5a3e2f01ea309cdcf58807b251138008edcfc65d3c31af8a5bd2"},
+    {file = "pyobjc_framework_CoreLocation-10.3.1-cp36-abi3-macosx_11_0_universal2.whl", hash = "sha256:5c4ded6388f99a18ce2b9d7082b8a43a19b6d9f8f121e2147d10bb37a25e1714"},
+    {file = "pyobjc_framework_corelocation-10.3.1.tar.gz", hash = "sha256:8ae54e5bd4c07f7224639d815f7a6537fadee17c11cb35dd99c2804bac1825ab"},
 ]
 
 [package.dependencies]
@@ -1879,6 +1987,38 @@ pyobjc-core = ">=10.3.1"
 pyobjc-framework-Cocoa = ">=10.3.1"
 
 [[package]]
+name = "pyobjc-framework-uniformtypeidentifiers"
+version = "9.2"
+description = "Wrappers for the framework UniformTypeIdentifiers on macOS"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "pyobjc-framework-UniformTypeIdentifiers-9.2.tar.gz", hash = "sha256:dd5a4c64018f28abdc0232b2d50cb3cd9a46b9175effffb7ac958abc27f412a8"},
+    {file = "pyobjc_framework_UniformTypeIdentifiers-9.2-py2.py3-none-any.whl", hash = "sha256:390a175f8ee279cef540151d4f55ec20a71faca2b5a0070eddd5cc9d943d3f02"},
+]
+
+[package.dependencies]
+pyobjc-core = ">=9.2"
+pyobjc-framework-Cocoa = ">=9.2"
+
+[[package]]
+name = "pyobjc-framework-uniformtypeidentifiers"
+version = "10.3.1"
+description = "Wrappers for the framework UniformTypeIdentifiers on macOS"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "pyobjc_framework_UniformTypeIdentifiers-10.3.1-py2.py3-none-any.whl", hash = "sha256:8bd1516ccec1807e2ad92a071242d83e9d1eda08ddbfae04dacc30d76c3d734c"},
+    {file = "pyobjc_framework_uniformtypeidentifiers-10.3.1.tar.gz", hash = "sha256:1985fee7e1f1157db36f3c19ee0ad273677eeff10467f575086246bbeffcdf50"},
+]
+
+[package.dependencies]
+pyobjc-core = ">=10.3.1"
+pyobjc-framework-Cocoa = ">=10.3.1"
+
+[[package]]
 name = "pyobjc-framework-vision"
 version = "9.2"
 description = "Wrappers for the framework Vision on macOS"
@@ -2073,14 +2213,14 @@ use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "rich"
-version = "13.7.1"
+version = "13.8.0"
 description = "Render rich text, tables, progress bars, syntax highlighting, markdown and more to the terminal"
 category = "main"
 optional = false
 python-versions = ">=3.7.0"
 files = [
-    {file = "rich-13.7.1-py3-none-any.whl", hash = "sha256:4edbae314f59eb482f54e9e30bf00d33350aaa94f4bfcd4e9e3110e64d0d7222"},
-    {file = "rich-13.7.1.tar.gz", hash = "sha256:9be308cb1fe2f1f57d67ce99e95af38a1e2bc71ad9813b0e247cf7ffbcc3a432"},
+    {file = "rich-13.8.0-py3-none-any.whl", hash = "sha256:2e85306a063b9492dffc86278197a60cbece75bcb766022f3436f567cae11bdc"},
+    {file = "rich-13.8.0.tar.gz", hash = "sha256:a5ac1f1cd448ade0d59cc3356f7db7a7ccda2c8cbae9c7a90c28ff463d3e91f4"},
 ]
 
 [package.dependencies]
@@ -2107,20 +2247,24 @@ rich = ">=11.0"
 
 [[package]]
 name = "setuptools"
-version = "73.0.1"
+version = "74.0.0"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
 category = "dev"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "setuptools-73.0.1-py3-none-any.whl", hash = "sha256:b208925fcb9f7af924ed2dc04708ea89791e24bde0d3020b27df0e116088b34e"},
-    {file = "setuptools-73.0.1.tar.gz", hash = "sha256:d59a3e788ab7e012ab2c4baed1b376da6366883ee20d7a5fc426816e3d7b1193"},
+    {file = "setuptools-74.0.0-py3-none-any.whl", hash = "sha256:0274581a0037b638b9fc1c6883cc71c0210865aaa76073f7882376b641b84e8f"},
+    {file = "setuptools-74.0.0.tar.gz", hash = "sha256:a85e96b8be2b906f3e3e789adec6a9323abf79758ecfa3065bd740d81158b11e"},
 ]
 
 [package.extras]
+check = ["pytest-checkdocs (>=2.4)", "pytest-ruff (>=0.2.1)", "ruff (>=0.5.2)"]
 core = ["importlib-metadata (>=6)", "importlib-resources (>=5.10.2)", "jaraco.text (>=3.7)", "more-itertools (>=8.8)", "packaging (>=24)", "platformdirs (>=2.6.2)", "tomli (>=2.0.1)", "wheel (>=0.43.0)"]
+cover = ["pytest-cov"]
 doc = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "pygments-github-lexers (==0.0.5)", "pyproject-hooks (!=1.1)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-favicon", "sphinx-inline-tabs", "sphinx-lint", "sphinx-notfound-page (>=1,<2)", "sphinx-reredirects", "sphinxcontrib-towncrier", "towncrier (<24.7)"]
-test = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "importlib-metadata", "ini2toml[lite] (>=0.14)", "jaraco.develop (>=7.21)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "jaraco.test", "mypy (>=1.11.0,<1.12.0)", "packaging (>=23.2)", "pip (>=19.1)", "pyproject-hooks (!=1.1)", "pytest (>=6,!=8.1.*)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-home (>=0.5)", "pytest-mypy", "pytest-perf", "pytest-ruff (<0.4)", "pytest-ruff (>=0.2.1)", "pytest-ruff (>=0.3.2)", "pytest-subprocess", "pytest-timeout", "pytest-xdist (>=3)", "tomli", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel (>=0.44.0)"]
+enabler = ["pytest-enabler (>=2.2)"]
+test = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "ini2toml[lite] (>=0.14)", "jaraco.develop (>=7.21)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "jaraco.test", "packaging (>=23.2)", "pip (>=19.1)", "pyproject-hooks (!=1.1)", "pytest (>=6,!=8.1.*)", "pytest-home (>=0.5)", "pytest-perf", "pytest-subprocess", "pytest-timeout", "pytest-xdist (>=3)", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel (>=0.44.0)"]
+type = ["importlib-metadata (>=7.0.2)", "jaraco.develop (>=7.21)", "mypy (>=1.11.0,<1.12.0)", "pytest-mypy"]
 
 [[package]]
 name = "shortuuid"
@@ -2191,7 +2335,6 @@ files = [
 
 [package.dependencies]
 Arpeggio = ">=2.0.0"
-importlib-metadata = {version = "*", markers = "python_version < \"3.10\""}
 
 [package.extras]
 cli = ["click (>=7.0,<9.0)"]
@@ -2446,18 +2589,6 @@ cffi = ">=1.16.0"
 test = ["pytest"]
 
 [[package]]
-name = "xdg"
-version = "5.1.1"
-description = "Variables defined by the XDG Base Directory Specification"
-category = "main"
-optional = false
-python-versions = ">=3.6,<4.0"
-files = [
-    {file = "xdg-5.1.1-py3-none-any.whl", hash = "sha256:865a7b56ed1d4cd2fce2ead1eddf97360843619757f473cd90b75f1817ca541d"},
-    {file = "xdg-5.1.1.tar.gz", hash = "sha256:aa619f26ccec6088b2a6018721d4ee86e602099b24644a90a8d3308a25acd06c"},
-]
-
-[[package]]
 name = "xdg-base-dirs"
 version = "6.0.1"
 description = "Variables defined by the XDG Base Directory Specification"
@@ -2469,23 +2600,7 @@ files = [
     {file = "xdg_base_dirs-6.0.1.tar.gz", hash = "sha256:b4c8f4ba72d1286018b25eea374ec6fbf4fddda3d4137edf50de95de53e195a6"},
 ]
 
-[[package]]
-name = "zipp"
-version = "3.20.0"
-description = "Backport of pathlib-compatible object wrapper for zip files"
-category = "main"
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "zipp-3.20.0-py3-none-any.whl", hash = "sha256:58da6168be89f0be59beb194da1250516fdaa062ccebd30127ac65d30045e10d"},
-    {file = "zipp-3.20.0.tar.gz", hash = "sha256:0145e43d89664cfe1a2e533adc75adafed82fe2da404b4bbb6b026c0157bdb31"},
-]
-
-[package.extras]
-doc = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-lint"]
-test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", "jaraco.test", "more-itertools", "pytest (>=6,!=8.1.*)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-ignore-flaky", "pytest-mypy", "pytest-ruff (>=0.2.1)"]
-
 [metadata]
 lock-version = "2.0"
-python-versions = ">=3.9,<3.11"
-content-hash = "b96b55557285f92304c7729590fc858ce508ac13f0c56707a5de73c01a910a71"
+python-versions = ">=3.10,<3.11"
+content-hash = "0786fbd41f4d1304736de345e38ad3f25fa3f2e63e681b7f05aed6afa76ab808"
