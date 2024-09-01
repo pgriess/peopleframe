@@ -35,6 +35,7 @@ class Album:
     count: int = 10
     people: List[str] = dataclasses.field(default_factory=list)
     score: float = 0.5
+    favorite: Optional[bool] = None
     selection_criteria = SelectionCriteria.RECENT
 
     def __str__(self) -> str:
@@ -42,6 +43,7 @@ class Album:
             f'Album(name={self.name}, username="{self.username}", '
             f'count={self.count}, people={", ".join(self.people)}, '
             f"score={self.score}, "
+            f"favorite={self.favorite}, "
             f"selection_criteria={self.selection_criteria})"
         )
 
@@ -92,9 +94,15 @@ def album_pdb_photos(
     Select Photos photos for synchronization with the given album.
     """
 
+    qo = osxphotos.QueryOptions()
+    if album.people:
+        qo.person = album.people
+    if album.favorite is not None:
+        qo.favorite = album.favorite
+
     # Grab all photos that match filter criteria
     pdb_photos = []
-    for p in pdb.photos(persons=album.people):
+    for p in pdb.query(qo):
         if p.uti not in ["public.jpeg", "public.png", "public.heic"]:
             continue
 
@@ -104,7 +112,9 @@ def album_pdb_photos(
         if p.screenshot:
             continue
 
-        if p.score.overall < album.score:
+        # Allow explicit indication as a favorite to override
+        # the score threshold
+        if p.score.overall < album.score and not p.favorite:
             continue
 
         pdb_photos.append(p)
@@ -292,6 +302,8 @@ in the configuration file
                     v = int(v)
                 elif k in ["selection_criteria"]:
                     v = SelectionCriteria.__members__[v]
+                elif k in ["favorite"]:
+                    v = bool(v)
 
                 setattr(a, k.lower(), v)
 
