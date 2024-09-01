@@ -2,12 +2,24 @@ Sync macOS Photos library to digital photo frames.
 
 ## Installation
 
-### Install Python via pyenv
+### Set up a venv
 
-Install Python via `pyenv`, configured with support for shared libraries. Without this, we will not be able to use `pyinstaller`.
+Create and activate the venv
+```bash
+python3.12 -m venv venv
+source venv/bin/activate
+```
 
-```bash 
-PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 3.10.2
+Install Poetry
+```bash
+pip3 install poetry==1.8.3
+```
+
+Then install our project
+```bash
+poetry install
+```
+
 ```
 
 ### Build the `peopleframe` binary
@@ -22,6 +34,8 @@ poetry run pyinstaller ./peopleframe.spec
 mkdir -p dist/PeopleFrame.app/Contents/MacOS
 mv dist/peopleframe dist/PeopleFrame.app/Contents/MacOS/PeopleFrame
 ```
+
+## Installation
 
 ### Install `PeopleFrame.app` somewhere static
 
