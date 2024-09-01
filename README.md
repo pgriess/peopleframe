@@ -20,11 +20,36 @@ Install Poetry
 pip3 install poetry==1.8.3
 ```
 
+Overwrite the non-universal dependencies that got installed
+```bash
+pip3 install \
+    --platform=universal2 \
+    --no-deps \
+    --upgrade \
+    -t ./venv/lib/python3.12/site-packages/ \
+    cffi==1.17.0 \
+    charset_normalizer==3.3.2 \
+    dulwich==0.21.7 \
+    msgpack==1.0.8 \
+    rapidfuzz==3.9.6 \
+    xattr==1.1.0
+```
+
 Then install our project
 ```bash
 poetry install
 ```
 
+Overwrite non-universal dependencies that got installed
+```bash
+pip3 install \
+    --platform=universal2 \
+    --no-deps \
+    --upgrade \
+    -t ./venv/lib/python3.12/site-packages/ \
+    bitarray==2.9.2 \
+    pyyaml==6.0.2 \
+    wrapt==1.16.0
 ```
 
 ### Build the `peopleframe` binary
