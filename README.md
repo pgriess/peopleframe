@@ -75,6 +75,13 @@ cp -R dist/PeopleFrame.app ~/Applications/
 ln -sf ~/Applications/PeopleFrame.app/Contents/MacOS/PeopleFrame ~/bin/peopleframe
 ```
 
+### Clear the quarantine bit
+
+This must be done on the system that the application is being installed on. It cannot be done as part of the build process. See [https://www.howtogeek.com/803598/app-is-damaged-and-cant-be-opened/](this article) on background.
+```bash
+xattr -d com.apple.quarantine ~/Applications/PeopleFrame.app
+```
+
 ### Grant the `PeopleFrame.app` Full Disk access
 
 Open the "System Settings" macOS application, search for "Privacy & Security", then selected "Full Disk Access". Click the little "+" icon at the bottom left of the list, navigate to ~/Applications and select "PeopleFrame".
