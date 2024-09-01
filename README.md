@@ -1,6 +1,11 @@
 Sync macOS Photos library to digital photo frames.
 
-## Installation
+## Building
+
+### Install Python official site
+
+The official Python site ships universal binaries. Install one; they end up in
+e.g. `/Library/Frameworks/Python.framework/Versions/3.12/`.
 
 ### Set up a venv
 

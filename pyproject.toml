@@ -6,14 +6,11 @@ authors = ["Peter Griess <pg@std.in>"]
 
 [tool.poetry.dependencies]
 osxphotos = "^0.68.4"
-python = ">=3.10,<3.11"
+python = ">=3.10,<3.13"
 pyxstar = "^0.2.2"
 
 [tool.poetry.dev-dependencies]
-pytest = "^6.2.5"
 pyinstaller = "^6.3"
-mypy = "^0.931"
-black = "^22.1.0"
 
 [tool.poetry.scripts]
 peopleframe = "peopleframe.main:main"
