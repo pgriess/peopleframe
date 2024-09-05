@@ -14,6 +14,7 @@ import sys
 import tempfile
 from typing import IO, List, Mapping, Optional
 
+import certifi
 import osxphotos
 from pyxstar.api import API
 
@@ -277,10 +278,11 @@ in the configuration file
         level=logging.ERROR - args.verbosity * 10,
     )
 
-    ssl_ctx = None
+    ssl_ctx = SSLContext()
     if not args.validate_https:
-        ssl_ctx = SSLContext()
         ssl_ctx.verify_mode = CERT_NONE
+    else:
+        ssl_ctx.load_verify_locations(cafile=certifi.where())
 
     # Create the set of albums to sync
     albums = []

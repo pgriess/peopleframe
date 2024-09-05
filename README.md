@@ -27,7 +27,7 @@ pip3 install \
     --no-deps \
     --upgrade \
     -t ./venv/lib/python3.12/site-packages/ \
-    cffi==1.17.0 \
+    cffi==1.17.1 \
     charset_normalizer==3.3.2 \
     dulwich==0.21.7 \
     msgpack==1.0.8 \
@@ -101,7 +101,7 @@ synchronizing different albums at different frequencies. Update it as follows
 ```xml
 <key>ProgramArguments</key>
 <array>
-    <string>/Users/pg/bin/peopleframe</string>
+    <string>/Users/pg/Applications/PeopleFrame.app/Contents/MacOS/peopleframe</string>
     ...
 </array>
 ```
