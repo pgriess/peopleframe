@@ -77,7 +77,7 @@ ln -sf ~/Applications/PeopleFrame.app/Contents/MacOS/PeopleFrame ~/bin/peoplefra
 
 ### Clear the quarantine bit
 
-This must be done on the system that the application is being installed on. It cannot be done as part of the build process. See [https://www.howtogeek.com/803598/app-is-damaged-and-cant-be-opened/](this article) on background.
+This must be done on the system that the application is being installed on. It cannot be done as part of the build process. See [this article](https://www.howtogeek.com/803598/app-is-damaged-and-cant-be-opened/) on background.
 ```bash
 xattr -d com.apple.quarantine ~/Applications/PeopleFrame.app
 ```
