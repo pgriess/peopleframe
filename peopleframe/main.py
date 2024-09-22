@@ -2,6 +2,8 @@ from argparse import ArgumentParser
 from configparser import ConfigParser
 import dataclasses
 import enum
+import functools
+import hashlib
 import io
 import logging
 import os
@@ -15,6 +17,7 @@ import tempfile
 from typing import IO, List, Mapping, Optional
 
 import certifi
+from mixpanel import Mixpanel
 import osxphotos
 from pyxstar.api import API
 
@@ -47,6 +50,27 @@ class Album:
             f"favorite={self.favorite}, "
             f"selection_criteria={self.selection_criteria})"
         )
+
+@functools.cache
+def agent_id() -> str:
+    """
+    Get a unique, stable, opaque identifier for this instance of the PeopleFrame
+    agent process.
+    """
+
+    h = hashlib.sha256(b"peopleframe")
+    # See https://apple.stackexchange.com/a/342043
+    h.update(subprocess.check_output(r"ioreg -d2 -c IOPlatformExpertDevice | awk -F\" '/IOPlatformUUID/{print $(NF-1)}'", shell=True))
+    return h.hexdigest()
+
+def album_id(album_name: str) -> str:
+    """
+    Get a stable, opaque identifier for an album name.
+    """
+
+    h = hashlib.sha256(b"peopleframe")
+    h.update(album_name.encode("utf-8"))
+    return h.hexdigest()
 
 
 def uuid_from_name(name: str) -> str:
@@ -139,7 +163,8 @@ def album_sync(
     album: Album,
     pdb_photos: Mapping[str, osxphotos.PhotoInfo],
     px: API,
-    dry_run: bool = True,
+    dry_run: bool,
+    mp: Mixpanel,
 ) -> None:
     """
     Synchronize an Album with the Pix-Star service.
@@ -164,6 +189,7 @@ def album_sync(
             px_album,
             [px_photos[pn] for pn in set(px_photos) - set(pdb_photos)],
         )
+        mp.track(agent_id(), "photo_delete", {"album_id": album_id(album.name)})
 
     for pn in set(pdb_photos) - set(px_photos):
         log.info(f"Uploading {pn} to Pix-Star album")
@@ -174,7 +200,7 @@ def album_sync(
         mime_type = "image/jpeg"
         with export_photo(pdb_photos[pn], mime_type) as f:
             px.album_photo_upload(px_album, f, f"{pn}.jpg", mime_type)
-
+            mp.track(agent_id(), "photo_upload", {"album_id": album_id(album.name)})
 
 def main():
     ap = ArgumentParser()
@@ -278,11 +304,15 @@ in the configuration file
         level=logging.ERROR - args.verbosity * 10,
     )
 
+    # Set up SSL
     ssl_ctx = SSLContext()
     if not args.validate_https:
         ssl_ctx.verify_mode = CERT_NONE
     else:
         ssl_ctx.load_verify_locations(cafile=certifi.where())
+
+    # Set up analytics
+    mp = Mixpanel("7397236382725ae239671f29b8072054")
 
     # Create the set of albums to sync
     albums = []
@@ -372,7 +402,7 @@ in the configuration file
         # Select which photos should be in the album
         pdb_photos = album_pdb_photos(a, pdb)
 
-        album_sync(a, pdb_photos, px, dry_run=args.dry_run)
+        album_sync(a, pdb_photos, px, args.dry_run, mp)
 
     log.info("Done")
 
