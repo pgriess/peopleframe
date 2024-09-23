@@ -20,6 +20,7 @@ import certifi
 from mixpanel import Mixpanel
 import osxphotos
 from pyxstar.api import API
+import sentry_sdk
 
 log = logging.getLogger("peopleframe")
 
@@ -313,6 +314,13 @@ in the configuration file
 
     # Set up analytics
     mp = Mixpanel("7397236382725ae239671f29b8072054")
+
+    # Set up Sentry monitoring
+    sentry_sdk.init(
+        dsn="https://628b59c6e71bb81715a4fe9ee1646f94@o4507999808323584.ingest.us.sentry.io/4507999818678272",
+        traces_sample_rate=1.0,
+        profiles_sample_rate=1.0,
+    )
 
     # Create the set of albums to sync
     albums = []
